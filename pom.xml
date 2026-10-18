@@ -152,11 +152,19 @@
 
     <dependencies>
 
+        <!-- provided server jar only; exclude transitives so Maven does not hit the
+             dead papermc.io snapshots repo declared in WineSpigot's POM -->
         <dependency>
             <groupId>net.techcable.tacospigot</groupId>
             <artifactId>WineSpigot</artifactId>
             <version>1.8.8-R0.2-MINECADIA</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -177,6 +185,15 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Always rebuild the thin jar so shade never re-shades a fat jar -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.1</version>
+                    <configuration>
+                        <forceCreation>true</forceCreation>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
@@ -208,12 +225,24 @@
                                     </relocation>
                                 </relocations>
                                 <filters>
+                                    <!-- ACF (and its embedded deps) ship META-INF that collide when shaded -->
+                                    <filter>
+                                        <artifact>co.aikar:*</artifact>
+                                        <excludes>
+                                            <exclude>META-INF/MANIFEST.MF</exclude>
+                                            <exclude>META-INF/maven/**</exclude>
+                                            <exclude>META-INF/*.SF</exclude>
+                                            <exclude>META-INF/*.DSA</exclude>
+                                            <exclude>META-INF/*.RSA</exclude>
+                                        </excludes>
+                                    </filter>
                                     <filter>
                                         <artifact>*:*</artifact>
                                         <excludes>
                                             <exclude>META-INF/*.SF</exclude>
                                             <exclude>META-INF/*.DSA</exclude>
                                             <exclude>META-INF/*.RSA</exclude>
+                                            <exclude>META-INF/maven/**</exclude>
                                         </excludes>
                                     </filter>
                                 </filters>
@@ -224,6 +253,10 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
