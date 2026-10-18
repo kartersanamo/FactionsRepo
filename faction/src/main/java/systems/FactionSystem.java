@@ -2,6 +2,7 @@ package systems;
 
 import model.Faction;
 import model.FactionPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -60,5 +61,27 @@ public class FactionSystem {
         }
 
         return true;
+    }
+
+    public Faction getFactionByName(String factionName) {
+        for (Faction faction : factions.values()) {
+            if (faction.getName().equalsIgnoreCase(factionName)) {
+                return faction;
+            }
+        }
+        return null;
+    }
+
+    public Faction findFactionByNameOrPlayer(String input) {
+        Faction byName = getFactionByName(input);
+        if (byName != null) {
+            return byName;
+        }
+
+        Player online = Bukkit.getPlayerExact(input);
+        if (online == null) {
+            return null;
+        }
+        return getFaction(getFactionPlayer(online));
     }
 }

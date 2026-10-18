@@ -2,9 +2,19 @@
 
 Core factions plugin: faction entities, players, and `/f` commands.
 
+## Build
+
+```bash
+mvn -pl faction -am package
+```
+
+Install `faction/target/faction-1.0-SNAPSHOT.jar`. ACF is shaded from the parent POM into each module jar (`com.kartersanamo.libs.aikar`).
+
+Main class: `FactionPlugin` (`plugin.yml`).
+
 ## Commands
 
-`FactionCommand` lives in `commands.faction`. Subcommands are grouped by category:
+`FactionSubCommand` (`commands`) is the ACF base. Subcommands are grouped by category:
 
 | Package | Purpose |
 |---------|---------|
