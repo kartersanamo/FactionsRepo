@@ -150,12 +150,27 @@
     </repositories>
 
     <dependencies>
+
         <dependency>
             <groupId>net.techcable.tacospigot</groupId>
             <artifactId>WineSpigot</artifactId>
             <version>1.8.8-R0.2-MINECADIA</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>acf-bukkit</artifactId>
+            <version>0.5.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.46</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

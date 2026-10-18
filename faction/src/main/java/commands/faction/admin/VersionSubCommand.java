@@ -1,4 +1,4 @@
-package commands.faction.info;
+package commands.faction.admin;
 
 public class VersionSubCommand {
 }
