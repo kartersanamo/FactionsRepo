@@ -31,15 +31,16 @@ public class ShowSubCommand extends FactionSubCommand {
 
     private Faction resolveShowTarget(Player player, String target) {
         if (target == null || target.isEmpty()) {
-            return factionSystem.getFaction(factionSystem.getFactionPlayer(player));
+            return factionSystem.getFaction(player.getUniqueId());
         }
         return factionSystem.findFactionByNameOrPlayer(target);
     }
 
     private void showFaction(Player player, Faction faction) {
         player.sendMessage("Faction: " + faction.getName());
-        player.sendMessage("Leader: " + faction.getLeader().getPlayer().getName());
+        player.sendMessage("Leader: " + faction.getLeader().getName());
         player.sendMessage("Members: " + faction.getMembers().size());
+        player.sendMessage("Land: " + faction.getLand());
         player.sendMessage("Allies: " + faction.getAllies().size());
         player.sendMessage("Enemies: " + faction.getEnemies().size());
     }

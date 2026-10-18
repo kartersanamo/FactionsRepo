@@ -1,4 +1,37 @@
 package commands.faction.membership;
 
-public class DisbandSubCommand {
+import co.aikar.commands.annotation.Subcommand;
+import commands.FactionSubCommand;
+import model.Faction;
+import model.FactionPlayer;
+import org.bukkit.entity.Player;
+import systems.FactionSystem;
+
+public class DisbandSubCommand extends FactionSubCommand {
+
+    public DisbandSubCommand(FactionSystem factionSystem) {
+        super(factionSystem);
+    }
+
+    @Subcommand("disband")
+    public void onDisbandCommand(Player player) {
+        Faction faction = factionSystem.getFaction(player.getUniqueId());
+        if (faction == null) {
+            player.sendMessage("You are not in a faction.");
+            return;
+        }
+
+        FactionPlayer member = faction.getMember(player.getUniqueId());
+        if (member == null || !member.isLeader()) {
+            player.sendMessage("Only the faction leader can disband.");
+            return;
+        }
+
+        String name = faction.getName();
+        if (!factionSystem.disbandFaction(player)) {
+            player.sendMessage("Could not disband the faction.");
+            return;
+        }
+        player.sendMessage("Faction " + name + " has been disbanded.");
+    }
 }

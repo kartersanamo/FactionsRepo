@@ -1,6 +1,6 @@
 # faction
 
-Core factions plugin: faction entities, players, and `/f` commands.
+Core factions plugin: faction entities, players, claims, and `/f` commands.
 
 ## Build
 
@@ -8,11 +8,30 @@ Core factions plugin: faction entities, players, and `/f` commands.
 mvn -pl faction -am package
 ```
 
-Install `faction/target/faction-1.0-SNAPSHOT.jar`. ACF is shaded from the parent POM into each module jar (`com.kartersanamo.libs.aikar`).
+Install `faction/target/faction-1.0-SNAPSHOT.jar`. ACF is shaded from the parent POM (`com.kartersanamo.libs.aikar`).
 
 Main class: `FactionPlugin` (`plugin.yml`).
 
-## Commands
+## Runtime
+
+- Factions persist to `plugins/Faction/factions.yml` (load on enable, save on disable and after changes).
+- Claim protection blocks break/place/interact in foreign claims.
+
+## Working commands
+
+| Command | Description |
+|---------|-------------|
+| `/f create <name>` | Create a faction |
+| `/f leave` | Leave (non-leaders) |
+| `/f disband` | Disband (leader) |
+| `/f invite <player>` | Invite a player (leader) |
+| `/f join <faction>` | Accept an invite |
+| `/f kick <player>` | Kick a member (leader) |
+| `/f show\|who [faction\|player]` | Show faction info |
+| `/f claim` | Claim the chunk you stand in |
+| `/f unclaim` | Unclaim your chunk |
+
+## Commands (package layout)
 
 `FactionSubCommand` (`commands`) is the ACF base. Subcommands are grouped by category:
 
