@@ -45,6 +45,9 @@ public class ClaimProtectionListener implements Listener {
     }
 
     private boolean canBuild(Player player, ChunkClaim claim) {
+        if (factionSystem.getFlags().hasBypass(player.getUniqueId())) {
+            return true;
+        }
         return factionSystem.canBuild(player, claim);
     }
 }

@@ -41,7 +41,7 @@ public class ShowSubCommand extends FactionSubCommand {
         player.sendMessage("Leader: " + faction.getLeader().getName());
         player.sendMessage("Members: " + faction.getMembers().size());
         player.sendMessage("Land: " + faction.getLand());
-        player.sendMessage("Allies: " + faction.getAllies().size());
-        player.sendMessage("Enemies: " + faction.getEnemies().size());
+        player.sendMessage("Allies: " + faction.getAllyIds().size());
+        player.sendMessage("Enemies: " + faction.getEnemyIds().size());
     }
 }

@@ -1,4 +1,19 @@
 package commands.faction.relation;
 
-public class TruceSubCommand {
+import co.aikar.commands.annotation.Subcommand;
+import commands.FactionSubCommand;
+import org.bukkit.entity.Player;
+import systems.FactionSystem;
+
+public class TruceSubCommand extends FactionSubCommand {
+    public TruceSubCommand(FactionSystem factionSystem) { super(factionSystem); }
+
+    @Subcommand("truce")
+    public void onCommand(Player player, String factionName) {
+        if (!factionSystem.setRelation(player, factionName, "truce")) {
+            player.sendMessage("Could not set relation.");
+            return;
+        }
+        player.sendMessage("Set relation truce with " + factionName + ".");
+    }
 }

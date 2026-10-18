@@ -1,4 +1,21 @@
 package commands.faction.role;
 
-public class PromoteSubCommand {
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.Subcommand;
+import commands.FactionSubCommand;
+import org.bukkit.entity.Player;
+import systems.FactionSystem;
+
+public class PromoteSubCommand extends FactionSubCommand {
+    public PromoteSubCommand(FactionSystem factionSystem) { super(factionSystem); }
+
+    @Subcommand("promote")
+    @CommandCompletion("@players")
+    public void onPromote(Player player, String target) {
+        if (!factionSystem.promoteMember(player, target)) {
+            player.sendMessage("Could not promote that player.");
+            return;
+        }
+        player.sendMessage("Promoted " + target + ".");
+    }
 }

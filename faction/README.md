@@ -1,6 +1,6 @@
 # faction
 
-Core factions plugin: faction entities, players, claims, and `/f` commands.
+Core factions plugin: faction entities, players, claims, relations, and `/f` commands.
 
 ## Build
 
@@ -14,27 +14,31 @@ Main class: `FactionPlugin` (`plugin.yml`).
 
 ## Runtime
 
-- Factions persist to `plugins/Faction/factions.yml` (load on enable, save on disable and after changes).
-- Claim protection blocks break/place/interact in foreign claims.
+- Persists to `plugins/Faction/factions.yml` (load on enable, save on disable and after changes).
+- Claim protection (bypass via `/f bypass`).
+- Autoclaim, faction/ally chat, and fly-in-claims via `FactionListener`.
 
-## Working commands
+## Commands
 
-| Command | Description |
-|---------|-------------|
-| `/f create <name>` | Create a faction |
-| `/f leave` | Leave (non-leaders) |
-| `/f disband` | Disband (leader) |
-| `/f invite <player>` | Invite a player (leader) |
-| `/f join <faction>` | Accept an invite |
-| `/f kick <player>` | Kick a member (leader) |
-| `/f show\|who [faction\|player]` | Show faction info |
-| `/f claim` | Claim the chunk you stand in |
-| `/f unclaim` | Unclaim your chunk |
-| `/f map` | Show nearby claims in chat |
+Membership: `create`, `join`, `leave`, `disband`, `invite`, `invites`, `deinvite`, `open`, `roster`, `reserve`
 
-## Commands (package layout)
+Roles: `kick`, `ban`, `promote`, `coleader`, `mod`, `owner`, `ownerlist`, `defaultrank`, `title`, `perms`
 
-`FactionSubCommand` (`commands`) is the ACF base. Subcommands are grouped by category:
+Relations: `ally`, `enemy`, `truce`, `peaceful`
+
+Claims: `claim`, `unclaim`, `unclaimall`, `autoclaim`, `map`, `showclaims`, `seechunk`, `setbase`, `corner`, `safeunclaimall`, `warzoneunclaimall`
+
+Teleport: `sethome`, `home`, `delhome`, `setwarp`, `warp`, `stuck`, `wild`, `fly`, `near`, `coords`
+
+Economy: `money`, `power`, `powerboost`, `points`, `tnt`, `tntfill`, `vault`, `chest`, `viewchest`, `boosters`, `givebooster`, `upgrades`, `setmaxvaults`
+
+Info: `show`/`who`, `help`, `list`, `top`, `desc`, `tag`, `rules`, `announce`, `chat`, `scoreboard`, `logins`, `logs`, `status`, `version`
+
+Admin: `saveall`, `reload`, `bypass`, `chatspy`, `config`, `debug`, `grace`, `permanent`, `strikes`
+
+Misc: `bundle`
+
+## Package layout
 
 | Package | Purpose |
 |---------|---------|
@@ -46,3 +50,4 @@ Main class: `FactionPlugin` (`plugin.yml`).
 | `commands.faction.economy` | Money, vaults, chest, TNT, power, boosters, upgrades |
 | `commands.faction.info` | Show, list, top, help, chat, tag, rules, logs |
 | `commands.faction.admin` | Reload, save, config, debug, bypass, strikes, grace |
+| `commands.faction.misc` | Bundle |

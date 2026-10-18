@@ -1,4 +1,18 @@
 package commands.faction.admin;
 
-public class ChatSpySubCommand {
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Subcommand;
+import commands.FactionSubCommand;
+import org.bukkit.entity.Player;
+import systems.FactionSystem;
+
+public class ChatSpySubCommand extends FactionSubCommand {
+    public ChatSpySubCommand(FactionSystem factionSystem) { super(factionSystem); }
+
+    @Subcommand("chatspy")
+    @CommandPermission("factions.admin")
+    public void onChatSpy(Player player) {
+        boolean enabled = factionSystem.getFlags().toggleChatSpy(player.getUniqueId());
+        player.sendMessage("Chat spy " + (enabled ? "enabled" : "disabled") + ".");
+    }
 }

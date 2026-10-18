@@ -3,6 +3,7 @@ package systems;
 import model.Faction;
 import model.FactionPlayer;
 import model.FactionRole;
+import model.NamedLocation;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -61,8 +62,9 @@ public class FactionStorage {
                         continue;
                     }
                     String name = memberSection.getString("name", "Unknown");
-                    FactionRole role = FactionRole.valueOf(memberSection.getString("role", "MEMBER"));
+                    FactionRole role = parseRole(memberSection.getString("role", "MEMBER"));
                     FactionPlayer member = new FactionPlayer(memberId, name, role);
+                    member.setTitle(memberSection.getString("title", ""));
                     members.add(member);
                     playerToFaction.put(memberId, factionId);
                     if (role == FactionRole.LEADER) {
@@ -80,16 +82,54 @@ public class FactionStorage {
                 continue;
             }
 
-            Faction faction = new Faction(factionId, leader, section.getString("name"));
+            Faction faction = new Faction(factionId, leader, section.getString("name", "Unknown"));
             faction.getMembers().clear();
             faction.getMembers().addAll(members);
             faction.setLeader(leader);
+
             faction.setDescription(section.getString("description", ""));
-            faction.setPower(section.getInt("power"));
-            faction.setMaxPower(section.getInt("maxPower"));
+            faction.setRules(section.getString("rules", ""));
+            faction.setPower(section.getInt("power", faction.getPower()));
+            faction.setMaxPower(section.getInt("maxPower", faction.getMaxPower()));
+            faction.setPowerBoost(section.getInt("powerBoost", 0));
+            faction.setPoints(section.getInt("points", 0));
+            faction.setTnt(section.getInt("tnt", 0));
+            faction.setStrikes(section.getInt("strikes", 0));
+            faction.setMaxVaults(section.getInt("maxVaults", faction.getMaxVaults()));
+            faction.setMoney(section.getDouble("money", 0));
+            faction.setOpen(section.getBoolean("open", false));
+            faction.setPeaceful(section.getBoolean("peaceful", false));
+            faction.setPermanent(section.getBoolean("permanent", false));
+            faction.setGrace(section.getBoolean("grace", false));
+            faction.setDefaultRank(parseRole(section.getString("defaultRank", "MEMBER")));
+
             if (section.contains("creationDate")) {
                 faction.setCreationDate(new Date(section.getLong("creationDate")));
             }
+
+            faction.setAllyIds(readUuidSet(section.getStringList("allyIds")));
+            faction.setEnemyIds(readUuidSet(section.getStringList("enemyIds")));
+            faction.setTruceIds(readUuidSet(section.getStringList("truceIds")));
+            faction.setBanned(readUuidSet(section.getStringList("banned")));
+
+            faction.setBaseClaimKey(section.getString("baseClaimKey"));
+
+            String homeRaw = section.getString("home");
+            if (homeRaw != null && !homeRaw.isEmpty()) {
+                faction.setHome(NamedLocation.fromString(homeRaw));
+            }
+
+            ConfigurationSection warpsSection = section.getConfigurationSection("warps");
+            Map<String, NamedLocation> warps = new HashMap<>();
+            if (warpsSection != null) {
+                for (String warpName : warpsSection.getKeys(false)) {
+                    String warpRaw = warpsSection.getString(warpName);
+                    if (warpRaw != null && !warpRaw.isEmpty()) {
+                        warps.put(warpName.toLowerCase(), NamedLocation.fromString(warpRaw));
+                    }
+                }
+            }
+            faction.setWarps(warps);
 
             Set<String> claimKeys = new HashSet<>(section.getStringList("claims"));
             faction.setClaims(claimKeys);
@@ -97,6 +137,7 @@ public class FactionStorage {
                 claims.put(claimKey, factionId);
             }
 
+            faction.recalculatePower();
             factions.put(factionId, faction);
         }
 
@@ -126,32 +167,89 @@ public class FactionStorage {
             ConfigurationSection section = factionsSection.createSection(faction.getId().toString());
             section.set("name", faction.getName());
             section.set("description", faction.getDescription());
+            section.set("rules", faction.getRules());
             section.set("power", faction.getPower());
             section.set("maxPower", faction.getMaxPower());
+            section.set("powerBoost", faction.getPowerBoost());
+            section.set("points", faction.getPoints());
+            section.set("tnt", faction.getTnt());
+            section.set("strikes", faction.getStrikes());
+            section.set("maxVaults", faction.getMaxVaults());
+            section.set("money", faction.getMoney());
+            section.set("open", faction.isOpen());
+            section.set("peaceful", faction.isPeaceful());
+            section.set("permanent", faction.isPermanent());
+            section.set("grace", faction.isGrace());
+            section.set("defaultRank", faction.getDefaultRank().name());
             section.set("creationDate", faction.getCreationDate().getTime());
             section.set("claims", new ArrayList<>(faction.getClaims()));
+            section.set("baseClaimKey", faction.getBaseClaimKey());
+            section.set("allyIds", writeUuidList(faction.getAllyIds()));
+            section.set("enemyIds", writeUuidList(faction.getEnemyIds()));
+            section.set("truceIds", writeUuidList(faction.getTruceIds()));
+            section.set("banned", writeUuidList(faction.getBanned()));
+
+            if (faction.getHome() != null) {
+                section.set("home", faction.getHome().serialize());
+            }
+
+            ConfigurationSection warpsSection = section.createSection("warps");
+            for (Map.Entry<String, NamedLocation> entry : faction.getWarps().entrySet()) {
+                warpsSection.set(entry.getKey(), entry.getValue().serialize());
+            }
 
             ConfigurationSection membersSection = section.createSection("members");
             for (FactionPlayer member : faction.getMembers()) {
                 ConfigurationSection memberSection = membersSection.createSection(member.getUniqueId().toString());
                 memberSection.set("name", member.getName());
                 memberSection.set("role", member.getRole().name());
+                memberSection.set("title", member.getTitle());
             }
         }
 
         ConfigurationSection invitesSection = yaml.createSection("invites");
         for (Map.Entry<UUID, Set<UUID>> entry : invites.entrySet()) {
-            List<String> factionIds = new ArrayList<>();
-            for (UUID factionId : entry.getValue()) {
-                factionIds.add(factionId.toString());
-            }
-            invitesSection.set(entry.getKey().toString(), factionIds);
+            invitesSection.set(entry.getKey().toString(), writeUuidList(entry.getValue()));
         }
 
         if (!dataFile.getParentFile().exists() && !dataFile.getParentFile().mkdirs()) {
             throw new IOException("Could not create data folder: " + dataFile.getParentFile());
         }
         yaml.save(dataFile);
+    }
+
+    private static FactionRole parseRole(String raw) {
+        try {
+            return FactionRole.valueOf(raw);
+        } catch (IllegalArgumentException exception) {
+            return FactionRole.MEMBER;
+        }
+    }
+
+    private static Set<UUID> readUuidSet(List<String> raw) {
+        Set<UUID> result = new HashSet<>();
+        if (raw == null) {
+            return result;
+        }
+        for (String text : raw) {
+            try {
+                result.add(UUID.fromString(text));
+            } catch (IllegalArgumentException ignored) {
+                // skip invalid
+            }
+        }
+        return result;
+    }
+
+    private static List<String> writeUuidList(Set<UUID> ids) {
+        List<String> result = new ArrayList<>();
+        if (ids == null) {
+            return result;
+        }
+        for (UUID id : ids) {
+            result.add(id.toString());
+        }
+        return result;
     }
 
     public static final class LoadedData {

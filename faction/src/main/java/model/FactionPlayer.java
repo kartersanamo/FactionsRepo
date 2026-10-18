@@ -10,17 +10,20 @@ public class FactionPlayer {
     private final UUID uuid;
     private String name;
     private FactionRole role;
+    private String title;
 
     public FactionPlayer(Player player, FactionRole role) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.role = role;
+        this.title = "";
     }
 
     public FactionPlayer(UUID uuid, String name, FactionRole role) {
         this.uuid = uuid;
         this.name = name;
         this.role = role;
+        this.title = "";
     }
 
     public UUID getUniqueId() {
@@ -41,6 +44,14 @@ public class FactionPlayer {
 
     public void setRole(FactionRole role) {
         this.role = role;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title == null ? "" : title;
     }
 
     public Player getPlayer() {

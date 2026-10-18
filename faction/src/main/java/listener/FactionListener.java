@@ -1,0 +1,105 @@
+package listener;
+
+import model.ChunkClaim;
+import model.Faction;
+import model.FactionChatMode;
+import model.FactionPlayer;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import systems.FactionSystem;
+
+public class FactionListener implements Listener {
+    private final FactionSystem factionSystem;
+
+    public FactionListener(FactionSystem factionSystem) {
+        this.factionSystem = factionSystem;
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (event.getFrom().getChunk().getX() == event.getTo().getChunk().getX()
+                && event.getFrom().getChunk().getZ() == event.getTo().getChunk().getZ()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        ChunkClaim toClaim = ChunkClaim.from(event.getTo());
+
+        if (factionSystem.getFlags().hasAutoClaim(player.getUniqueId())) {
+            factionSystem.claimChunk(player, toClaim);
+        }
+
+        if (factionSystem.getFlags().hasFly(player.getUniqueId())) {
+            Faction faction = factionSystem.getFaction(player.getUniqueId());
+            Faction at = factionSystem.getFactionAt(toClaim);
+            boolean onOwnClaim = faction != null && at != null && faction.getId().equals(at.getId());
+            if (!onOwnClaim) {
+                factionSystem.getFlags().setFly(player.getUniqueId(), false);
+                player.setAllowFlight(false);
+                player.setFlying(false);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerChat(PlayerChatEvent event) {
+        Player player = event.getPlayer();
+        FactionChatMode mode = factionSystem.getFlags().getChatMode(player.getUniqueId());
+        if (mode == FactionChatMode.PUBLIC) {
+            notifyChatSpies(player, event.getMessage());
+            return;
+        }
+
+        Faction faction = factionSystem.getFaction(player.getUniqueId());
+        if (faction == null) {
+            factionSystem.getFlags().setChatMode(player.getUniqueId(), FactionChatMode.PUBLIC);
+            return;
+        }
+
+        event.setCancelled(true);
+        String formatted = formatChatMessage(player, faction, mode, event.getMessage());
+
+        if (mode == FactionChatMode.FACTION) {
+            sendToFactionMembers(faction, formatted);
+        } else if (mode == FactionChatMode.ALLY) {
+            sendToFactionMembers(faction, formatted);
+            for (java.util.UUID allyId : faction.getAllyIds()) {
+                Faction ally = factionSystem.getFactionById(allyId);
+                if (ally != null) {
+                    sendToFactionMembers(ally, formatted);
+                }
+            }
+        }
+        notifyChatSpies(player, event.getMessage());
+    }
+
+    private void sendToFactionMembers(Faction faction, String message) {
+        for (FactionPlayer member : faction.getMembers()) {
+            Player online = member.getPlayer();
+            if (online != null) {
+                online.sendMessage(message);
+            }
+        }
+    }
+
+    private String formatChatMessage(Player player, Faction faction, FactionChatMode mode, String message) {
+        String prefix = mode == FactionChatMode.ALLY ? "[ALLY] " : "[F] ";
+        return prefix + faction.getName() + " " + player.getName() + ": " + message;
+    }
+
+    private void notifyChatSpies(Player sender, String message) {
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.getUniqueId().equals(sender.getUniqueId())) {
+                continue;
+            }
+            if (factionSystem.getFlags().hasChatSpy(online.getUniqueId())) {
+                online.sendMessage("[ChatSpy] " + sender.getName() + ": " + message);
+            }
+        }
+    }
+}

@@ -24,8 +24,13 @@ public class JoinSubCommand extends FactionSubCommand {
             player.sendMessage("Faction not found.");
             return;
         }
+        if (faction.getBanned().contains(player.getUniqueId())) {
+            player.sendMessage("You are banned from that faction.");
+            return;
+        }
 
-        if (!factionSystem.getInvites(player.getUniqueId()).contains(faction.getId())) {
+        boolean invited = factionSystem.getInvites(player.getUniqueId()).contains(faction.getId());
+        if (!faction.isOpen() && !invited) {
             player.sendMessage("You do not have an invite to that faction.");
             return;
         }
