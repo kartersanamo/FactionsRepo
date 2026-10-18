@@ -11,9 +11,9 @@ public class DescriptionSubCommand extends FactionSubCommand {
     @Subcommand("desc|description")
     public void onDescription(Player player, String description) {
         if (!factionSystem.setDescription(player, description)) {
-            player.sendMessage("Could not set description.");
+            msg(player, "description.failed");
             return;
         }
-        player.sendMessage("Description updated.");
+        msg(player, "description.success");
     }
 }

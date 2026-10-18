@@ -15,8 +15,8 @@ public class PowerSubCommand extends FactionSubCommand {
         Faction faction = target == null || target.isEmpty()
                 ? factionSystem.getFaction(player.getUniqueId())
                 : factionSystem.findFactionByNameOrPlayer(target);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
-        player.sendMessage(faction.getName() + " power: " + faction.getPower() + "/" + faction.getMaxPower()
-                + " (boost +" + faction.getPowerBoost() + ", land " + faction.getLand() + ")");
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
+        msg(player, "power.info", "faction", faction.getName(), "power", faction.getPower(),
+                "max", faction.getMaxPower(), "boost", faction.getPowerBoost(), "land", faction.getLand());
     }
 }

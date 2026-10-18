@@ -26,12 +26,12 @@ public class TopSubCommand extends FactionSubCommand {
             list = factionSystem.listFactionsSortedByLand();
             label = "land";
         }
-        player.sendMessage("Top factions by " + label + ":");
+        msg(player, "top.header", "type", label);
         int i = 0;
         for (Faction faction : list) {
             int value = label.equals("power") ? faction.getPower()
                     : label.equals("points") ? faction.getPoints() : faction.getLand();
-            player.sendMessage(++i + ". " + faction.getName() + " - " + value);
+            msg(player, "top.line", "index", ++i, "faction", faction.getName(), "value", value);
             if (i >= 10) break;
         }
     }

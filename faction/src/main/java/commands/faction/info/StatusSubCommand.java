@@ -15,11 +15,12 @@ public class StatusSubCommand extends FactionSubCommand {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         ChunkClaim claim = ChunkClaim.from(player.getLocation());
         Faction at = factionSystem.getFactionAt(claim);
-        player.sendMessage("You: " + (faction == null ? "Wilderness" : faction.getName()));
-        player.sendMessage("Chunk " + claim.getX() + ", " + claim.getZ() + ": "
-                + (at == null ? "Wilderness" : at.getName()));
-        player.sendMessage("Chat: " + factionSystem.getFlags().getChatMode(player.getUniqueId()));
-        player.sendMessage("Autoclaim: " + factionSystem.getFlags().hasAutoClaim(player.getUniqueId()));
-        player.sendMessage("Fly: " + factionSystem.getFlags().hasFly(player.getUniqueId()));
+        String wilderness = messages.raw("general.wilderness");
+        msg(player, "status.you", "faction", faction == null ? wilderness : faction.getName());
+        msg(player, "status.chunk", "chunk", claim.getX(), "chunkz", claim.getZ(),
+                "owner", at == null ? wilderness : at.getName());
+        msg(player, "status.chat", "mode", factionSystem.getFlags().getChatMode(player.getUniqueId()));
+        msg(player, "status.autoclaim", "state", factionSystem.getFlags().hasAutoClaim(player.getUniqueId()));
+        msg(player, "status.fly", "state", factionSystem.getFlags().hasFly(player.getUniqueId()));
     }
 }

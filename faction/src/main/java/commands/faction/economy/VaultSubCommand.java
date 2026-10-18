@@ -18,16 +18,16 @@ public class VaultSubCommand extends FactionSubCommand {
     public void onVault(Player player, @Default("1") Integer number) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
         int vaultNumber = number == null ? 1 : number;
         if (vaultNumber < 1 || vaultNumber > faction.getMaxVaults()) {
-            player.sendMessage("Vault must be between 1 and " + faction.getMaxVaults() + ".");
+            msg(player, "vault.invalid", "max", faction.getMaxVaults());
             return;
         }
         Inventory inventory = Bukkit.createInventory(player, 27, "Faction Vault #" + vaultNumber);
         player.openInventory(inventory);
-        player.sendMessage("Opened temporary vault #" + vaultNumber + " (not persisted yet).");
+        msg(player, "vault.opened", "number", vaultNumber);
     }
 }

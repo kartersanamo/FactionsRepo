@@ -15,14 +15,14 @@ public class WarpSubCommand extends FactionSubCommand {
     public void onWarp(Player player, @Optional String name) {
         if (name == null || name.isEmpty()) {
             List<String> warps = factionSystem.listWarps(player);
-            if (warps.isEmpty()) { player.sendMessage("No warps. Usage: /f warp <name>"); return; }
-            player.sendMessage("Warps: " + String.join(", ", warps));
+            if (warps.isEmpty()) { msg(player, "warp.none"); return; }
+            msg(player, "warp.list", "list", String.join(", ", warps));
             return;
         }
         if (!factionSystem.teleportWarp(player, name)) {
-            player.sendMessage("Warp not found.");
+            msg(player, "warp.missing");
             return;
         }
-        player.sendMessage("Warped to " + name + ".");
+        msg(player, "warp.teleport", "warp", name);
     }
 }

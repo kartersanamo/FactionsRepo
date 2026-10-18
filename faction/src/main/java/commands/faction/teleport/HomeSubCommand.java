@@ -11,9 +11,9 @@ public class HomeSubCommand extends FactionSubCommand {
     @Subcommand("home")
     public void onHome(Player player) {
         if (!factionSystem.teleportHome(player)) {
-            player.sendMessage("No faction home set or you are not in a faction.");
+            msg(player, "home.teleport-failed");
             return;
         }
-        player.sendMessage("Teleported home.");
+        msg(player, "home.teleport");
     }
 }

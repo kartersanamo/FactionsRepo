@@ -13,6 +13,6 @@ public class SaveAllSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onSaveAll(Player player) {
         factionSystem.save();
-        player.sendMessage("Factions saved.");
+        msg(player, "admin.saved");
     }
 }

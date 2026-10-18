@@ -11,9 +11,9 @@ public class SetWarpSubCommand extends FactionSubCommand {
     @Subcommand("setwarp")
     public void onSetWarp(Player player, String name) {
         if (!factionSystem.setWarp(player, name)) {
-            player.sendMessage("Could not set warp.");
+            msg(player, "warp.set-failed");
             return;
         }
-        player.sendMessage("Warp " + name + " set.");
+        msg(player, "warp.set", "warp", name);
     }
 }

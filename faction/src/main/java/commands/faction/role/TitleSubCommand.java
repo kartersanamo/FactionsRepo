@@ -13,9 +13,9 @@ public class TitleSubCommand extends FactionSubCommand {
     @CommandCompletion("@players")
     public void onTitle(Player player, String target, String title) {
         if (!factionSystem.setTitle(player, target, title)) {
-            player.sendMessage("Could not set title.");
+            msg(player, "title.failed");
             return;
         }
-        player.sendMessage("Set title for " + target + " to " + title + ".");
+        msg(player, "title.success", "player", target, "title", title);
     }
 }

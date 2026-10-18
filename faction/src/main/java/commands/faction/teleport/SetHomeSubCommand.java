@@ -11,9 +11,9 @@ public class SetHomeSubCommand extends FactionSubCommand {
     @Subcommand("sethome")
     public void onSetHome(Player player) {
         if (!factionSystem.setHome(player)) {
-            player.sendMessage("Could not set home. Need permission and stand in your land.");
+            msg(player, "home.set-failed");
             return;
         }
-        player.sendMessage("Faction home set.");
+        msg(player, "home.set");
     }
 }

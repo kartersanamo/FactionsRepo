@@ -13,16 +13,17 @@ public class RulesSubCommand extends FactionSubCommand {
     @Subcommand("rules")
     public void onRules(Player player, @Optional String rules) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         if (rules == null || rules.isEmpty()) {
             String current = faction.getRules();
-            player.sendMessage(current.isEmpty() ? "No rules set." : "Rules: " + current);
+            if (current.isEmpty()) msg(player, "rules.none");
+            else msg(player, "rules.view", "rules", current);
             return;
         }
         if (!factionSystem.setRules(player, rules)) {
-            player.sendMessage("Could not set rules.");
+            msg(player, "rules.failed");
             return;
         }
-        player.sendMessage("Rules updated.");
+        msg(player, "rules.success");
     }
 }

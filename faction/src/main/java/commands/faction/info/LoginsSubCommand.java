@@ -13,10 +13,10 @@ public class LoginsSubCommand extends FactionSubCommand {
     @Subcommand("logins")
     public void onLogins(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
-        player.sendMessage("Online members:");
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
+        msg(player, "logins.header");
         for (FactionPlayer member : faction.getMembers()) {
-            if (member.isOnline()) player.sendMessage("- " + member.getName());
+            if (member.isOnline()) msg(player, "logins.line", "player", member.getName());
         }
     }
 }

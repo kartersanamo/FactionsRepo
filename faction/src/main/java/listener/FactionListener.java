@@ -3,7 +3,6 @@ package listener;
 import model.ChunkClaim;
 import model.Faction;
 import model.FactionChatMode;
-import model.FactionPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,6 +41,7 @@ public class FactionListener implements Listener {
                 factionSystem.getFlags().setFly(player.getUniqueId(), false);
                 player.setAllowFlight(false);
                 player.setFlying(false);
+                factionSystem.getMessages().send(player, "fly.disabled-territory");
             }
         }
     }
@@ -62,34 +62,15 @@ public class FactionListener implements Listener {
         }
 
         event.setCancelled(true);
-        String formatted = formatChatMessage(player, faction, mode, event.getMessage());
+        Object[] placeholders = {"faction", faction.getName(), "player", player.getName(),
+                "message", event.getMessage()};
 
         if (mode == FactionChatMode.FACTION) {
-            sendToFactionMembers(faction, formatted);
+            factionSystem.broadcastToFaction(faction, "chat.format-faction", placeholders);
         } else if (mode == FactionChatMode.ALLY) {
-            sendToFactionMembers(faction, formatted);
-            for (java.util.UUID allyId : faction.getAllyIds()) {
-                Faction ally = factionSystem.getFactionById(allyId);
-                if (ally != null) {
-                    sendToFactionMembers(ally, formatted);
-                }
-            }
+            factionSystem.broadcastToAllies(faction, "chat.format-ally", placeholders);
         }
         notifyChatSpies(player, event.getMessage());
-    }
-
-    private void sendToFactionMembers(Faction faction, String message) {
-        for (FactionPlayer member : faction.getMembers()) {
-            Player online = member.getPlayer();
-            if (online != null) {
-                online.sendMessage(message);
-            }
-        }
-    }
-
-    private String formatChatMessage(Player player, Faction faction, FactionChatMode mode, String message) {
-        String prefix = mode == FactionChatMode.ALLY ? "[ALLY] " : "[F] ";
-        return prefix + faction.getName() + " " + player.getName() + ": " + message;
     }
 
     private void notifyChatSpies(Player sender, String message) {
@@ -98,7 +79,8 @@ public class FactionListener implements Listener {
                 continue;
             }
             if (factionSystem.getFlags().hasChatSpy(online.getUniqueId())) {
-                online.sendMessage("[ChatSpy] " + sender.getName() + ": " + message);
+                factionSystem.getMessages().send(online, "chat.spy",
+                        "player", sender.getName(), "message", message);
             }
         }
     }

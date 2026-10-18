@@ -13,22 +13,22 @@ public class TNTSubCommand extends FactionSubCommand {
     @Subcommand("tnt")
     public void onTnt(Player player, @Optional String action, @Optional Integer amount) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         if (action == null || action.isEmpty()) {
-            player.sendMessage("Faction TNT bank: " + faction.getTnt());
+            msg(player, "tnt.balance", "amount", faction.getTnt());
             return;
         }
-        if (amount == null || amount <= 0) { player.sendMessage("Usage: /f tnt <add|take> <amount>"); return; }
+        if (amount == null || amount <= 0) { msg(player, "tnt.usage"); return; }
         if (action.equalsIgnoreCase("add")) {
             factionSystem.addTnt(faction, amount);
-            player.sendMessage("Added " + amount + " TNT. Bank: " + faction.getTnt());
+            msg(player, "tnt.added", "amount", amount, "total", faction.getTnt());
             return;
         }
         if (action.equalsIgnoreCase("take")) {
-            if (!factionSystem.removeTnt(faction, amount)) { player.sendMessage("Not enough TNT."); return; }
-            player.sendMessage("Took " + amount + " TNT. Bank: " + faction.getTnt());
+            if (!factionSystem.removeTnt(faction, amount)) { msg(player, "tnt.not-enough"); return; }
+            msg(player, "tnt.took", "amount", amount, "total", faction.getTnt());
             return;
         }
-        player.sendMessage("Usage: /f tnt [add|take] [amount]");
+        msg(player, "tnt.usage");
     }
 }

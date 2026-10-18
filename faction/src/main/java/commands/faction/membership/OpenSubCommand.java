@@ -12,9 +12,9 @@ public class OpenSubCommand extends FactionSubCommand {
     @Subcommand("open")
     public void onOpen(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         boolean next = !faction.isOpen();
-        if (!factionSystem.setOpen(player, next)) { player.sendMessage("Only the leader can toggle open."); return; }
-        player.sendMessage("Faction is now " + (next ? "open" : "closed") + ".");
+        if (!factionSystem.setOpen(player, next)) { msg(player, "open.not-leader"); return; }
+        msg(player, next ? "open.now-open" : "open.now-closed");
     }
 }

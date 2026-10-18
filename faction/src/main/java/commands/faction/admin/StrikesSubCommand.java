@@ -15,12 +15,12 @@ public class StrikesSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onStrikes(Player player, String factionName, @Optional Integer value) {
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
         if (value == null) {
-            player.sendMessage(factionName + " strikes: " + faction.getStrikes());
+            msg(player, "admin.strikes-view", "faction", factionName, "strikes", faction.getStrikes());
             return;
         }
         factionSystem.adminSetStrikes(faction, value);
-        player.sendMessage("Set strikes for " + factionName + " to " + value + ".");
+        msg(player, "admin.strikes-set", "faction", factionName, "strikes", value);
     }
 }

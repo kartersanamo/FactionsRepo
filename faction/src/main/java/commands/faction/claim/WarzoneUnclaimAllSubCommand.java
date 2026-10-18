@@ -14,8 +14,8 @@ public class WarzoneUnclaimAllSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onWarzoneUnclaimAll(Player player) {
         Faction faction = factionSystem.getFactionByName("Warzone");
-        if (faction == null) { player.sendMessage("Warzone faction not found."); return; }
+        if (faction == null) { msg(player, "claim.warzone-missing"); return; }
         factionSystem.unclaimAll(faction);
-        player.sendMessage("Unclaimed all Warzone land.");
+        msg(player, "claim.warzone-unclaim");
     }
 }

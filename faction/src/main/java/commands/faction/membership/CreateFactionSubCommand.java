@@ -15,19 +15,19 @@ public class CreateFactionSubCommand extends FactionSubCommand {
     @Subcommand("create")
     public void onCreateCommand(Player player, String factionName) {
         if (factionSystem.getFaction(player.getUniqueId()) != null) {
-            player.sendMessage("You are already in a faction.");
+            msg(player, "general.already-in-faction");
             return;
         }
         if (factionSystem.doesFactionExist(factionName)) {
-            player.sendMessage("A faction with that name already exists.");
+            msg(player, "create.exists");
             return;
         }
         if (!factionSystem.isValidFactionName(factionName)) {
-            player.sendMessage("Invalid faction name.");
+            msg(player, "create.invalid-name");
             return;
         }
 
         Faction createdFaction = factionSystem.createFaction(player, factionName);
-        player.sendMessage("Faction " + createdFaction.getName() + " has been created!");
+        msg(player, "create.success", "faction", createdFaction.getName());
     }
 }

@@ -11,14 +11,14 @@ public class ListSubCommand extends FactionSubCommand {
 
     @Subcommand("list")
     public void onList(Player player) {
-        player.sendMessage("Factions:");
+        msg(player, "list.header");
         int i = 0;
         for (Faction faction : factionSystem.listFactionsSortedByLand()) {
-            player.sendMessage(++i + ". " + faction.getName() + " - land " + faction.getLand()
-                    + ", members " + faction.getMembers().size()
-                    + (faction.isOpen() ? " [open]" : ""));
+            msg(player, "list.line", "index", ++i, "faction", faction.getName(), "land", faction.getLand(),
+                    "members", faction.getMembers().size(),
+                    "open", faction.isOpen() ? messages.raw("list.open-tag") : "");
             if (i >= 20) break;
         }
-        if (i == 0) player.sendMessage("No factions.");
+        if (i == 0) msg(player, "list.none");
     }
 }

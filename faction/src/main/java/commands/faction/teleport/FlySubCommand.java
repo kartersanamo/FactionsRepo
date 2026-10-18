@@ -13,15 +13,15 @@ public class FlySubCommand extends FactionSubCommand {
     @Subcommand("fly")
     public void onFly(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         Faction at = factionSystem.getFactionAt(ChunkClaim.from(player.getLocation()));
         if (at == null || !at.getId().equals(faction.getId())) {
-            player.sendMessage("You can only fly in your own claims.");
+            msg(player, "teleport.fly-denied");
             return;
         }
         boolean enabled = factionSystem.getFlags().toggleFly(player.getUniqueId());
         player.setAllowFlight(enabled);
         player.setFlying(enabled);
-        player.sendMessage("Faction fly " + (enabled ? "enabled" : "disabled") + ".");
+        msg(player, enabled ? "teleport.fly-on" : "teleport.fly-off");
     }
 }

@@ -14,9 +14,9 @@ public class PermanentSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onPermanent(Player player, String factionName) {
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
         boolean next = !faction.isPermanent();
         factionSystem.setPermanent(faction, next);
-        player.sendMessage("Permanent for " + factionName + ": " + next);
+        msg(player, "admin.permanent", "faction", factionName, "state", next);
     }
 }

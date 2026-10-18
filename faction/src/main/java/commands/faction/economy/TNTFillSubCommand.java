@@ -21,24 +21,24 @@ public class TNTFillSubCommand extends FactionSubCommand {
     public void onTntFill(Player player, int amount) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
         if (amount <= 0) {
-            player.sendMessage("Amount must be positive.");
+            msg(player, "tnt.fill-invalid");
             return;
         }
         Block target = player.getTargetBlock(new HashSet<Byte>(), 5);
         if (target == null || target.getType() != Material.DISPENSER) {
-            player.sendMessage("Look at a dispenser.");
+            msg(player, "tnt.fill-look");
             return;
         }
         if (!factionSystem.removeTnt(faction, amount)) {
-            player.sendMessage("Not enough TNT in the bank.");
+            msg(player, "tnt.not-enough");
             return;
         }
         Dispenser dispenser = (Dispenser) target.getState();
         dispenser.getInventory().addItem(new ItemStack(Material.TNT, amount));
-        player.sendMessage("Filled dispenser with " + amount + " TNT.");
+        msg(player, "tnt.fill-success", "amount", amount);
     }
 }

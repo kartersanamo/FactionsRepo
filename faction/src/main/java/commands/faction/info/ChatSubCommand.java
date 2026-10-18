@@ -13,7 +13,7 @@ public class ChatSubCommand extends FactionSubCommand {
     @Subcommand("c|chat")
     public void onChat(Player player, @Default("toggle") String mode) {
         if (factionSystem.getFaction(player.getUniqueId()) == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
         FactionChatMode next;
@@ -26,6 +26,6 @@ public class ChatSubCommand extends FactionSubCommand {
                     : current == FactionChatMode.FACTION ? FactionChatMode.ALLY : FactionChatMode.PUBLIC;
         }
         factionSystem.getFlags().setChatMode(player.getUniqueId(), next);
-        player.sendMessage("Chat mode: " + next.name().toLowerCase());
+        msg(player, "chat.mode", "mode", next.name().toLowerCase());
     }
 }

@@ -14,8 +14,8 @@ public class SafeUnclaimAllSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onSafeUnclaimAll(Player player) {
         Faction faction = factionSystem.getFactionByName("Safezone");
-        if (faction == null) { player.sendMessage("Safezone faction not found."); return; }
+        if (faction == null) { msg(player, "claim.safe-missing"); return; }
         factionSystem.unclaimAll(faction);
-        player.sendMessage("Unclaimed all Safezone land.");
+        msg(player, "claim.safe-unclaim");
     }
 }

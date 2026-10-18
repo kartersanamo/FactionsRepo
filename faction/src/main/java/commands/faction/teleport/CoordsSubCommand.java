@@ -13,12 +13,11 @@ public class CoordsSubCommand extends FactionSubCommand {
     @Subcommand("coords")
     public void onCoords(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         Location loc = player.getLocation();
-        String message = player.getName() + " coords: "
-                + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ()
-                + " (" + loc.getWorld().getName() + ")";
-        factionSystem.broadcastToFaction(faction, message);
-        player.sendMessage("Shared coords with your faction.");
+        factionSystem.broadcastToFaction(faction, "teleport.coords-broadcast",
+                "player", player.getName(), "x", loc.getBlockX(), "y", loc.getBlockY(), "z", loc.getBlockZ(),
+                "world", loc.getWorld().getName());
+        msg(player, "teleport.coords-shared");
     }
 }

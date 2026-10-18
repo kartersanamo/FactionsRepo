@@ -20,7 +20,7 @@
         <module>economy</module>
         <module>meta</module>
         <module>ops</module>
-        <module>core-api</module>
+        <module>core</module>
         <module>core-runtime</module>
         <module>core-common</module>
         <module>donor</module>

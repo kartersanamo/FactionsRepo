@@ -21,9 +21,7 @@ public class ShowSubCommand extends FactionSubCommand {
     public void onShowCommand(Player player, @Optional String target) {
         Faction faction = resolveShowTarget(player, target);
         if (faction == null) {
-            player.sendMessage(target == null
-                    ? "You are not in a faction."
-                    : "Faction not found.");
+            msg(player, target == null ? "general.not-in-faction" : "general.faction-not-found");
             return;
         }
         showFaction(player, faction);
@@ -37,11 +35,18 @@ public class ShowSubCommand extends FactionSubCommand {
     }
 
     private void showFaction(Player player, Faction faction) {
-        player.sendMessage("Faction: " + faction.getName());
-        player.sendMessage("Leader: " + faction.getLeader().getName());
-        player.sendMessage("Members: " + faction.getMembers().size());
-        player.sendMessage("Land: " + faction.getLand());
-        player.sendMessage("Allies: " + faction.getAllyIds().size());
-        player.sendMessage("Enemies: " + faction.getEnemyIds().size());
+        String description = faction.getDescription();
+        msg(player, "show",
+                "faction", faction.getName(),
+                "description", description == null || description.isEmpty() ? "None" : description,
+                "leader", faction.getLeader().getName(),
+                "members", faction.getMembers().size(),
+                "land", faction.getLand(),
+                "power", faction.getPower(),
+                "maxpower", faction.getMaxPower(),
+                "allies", faction.getAllyIds().size(),
+                "enemies", faction.getEnemyIds().size(),
+                "open", faction.isOpen(),
+                "peaceful", faction.isPeaceful());
     }
 }

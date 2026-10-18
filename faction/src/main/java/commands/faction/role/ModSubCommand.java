@@ -14,9 +14,9 @@ public class ModSubCommand extends FactionSubCommand {
     @CommandCompletion("@players")
     public void onMod(Player player, String target) {
         if (!factionSystem.setRole(player, target, FactionRole.MOD)) {
-            player.sendMessage("Could not set mod.");
+            msg(player, "mod.failed");
             return;
         }
-        player.sendMessage(target + " is now a mod.");
+        msg(player, "mod.success", "player", target);
     }
 }

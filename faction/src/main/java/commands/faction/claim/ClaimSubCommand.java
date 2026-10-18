@@ -17,21 +17,21 @@ public class ClaimSubCommand extends FactionSubCommand {
     public void onClaimCommand(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
 
         ChunkClaim claim = ChunkClaim.from(player.getLocation());
         Faction owner = factionSystem.getFactionAt(claim);
         if (owner != null) {
-            player.sendMessage("This chunk is already claimed by " + owner.getName() + ".");
+            msg(player, "claim.already", "faction", owner.getName());
             return;
         }
 
         if (!factionSystem.claimChunk(player, claim)) {
-            player.sendMessage("Could not claim this chunk.");
+            msg(player, "claim.failed");
             return;
         }
-        player.sendMessage("Claimed chunk " + claim.getX() + ", " + claim.getZ() + ".");
+        msg(player, "claim.success", "chunk", claim.getX(), "chunkz", claim.getZ());
     }
 }

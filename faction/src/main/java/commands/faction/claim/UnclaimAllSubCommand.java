@@ -11,9 +11,9 @@ public class UnclaimAllSubCommand extends FactionSubCommand {
     @Subcommand("unclaimall")
     public void onUnclaimAll(Player player) {
         if (!factionSystem.unclaimAll(player)) {
-            player.sendMessage("Could not unclaim all land.");
+            msg(player, "claim.unclaim-all-failed");
             return;
         }
-        player.sendMessage("Unclaimed all faction land.");
+        msg(player, "claim.unclaim-all");
     }
 }

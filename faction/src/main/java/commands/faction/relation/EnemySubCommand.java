@@ -11,9 +11,9 @@ public class EnemySubCommand extends FactionSubCommand {
     @Subcommand("enemy")
     public void onCommand(Player player, String factionName) {
         if (!factionSystem.setRelation(player, factionName, "enemy")) {
-            player.sendMessage("Could not set relation.");
+            msg(player, "relation.failed");
             return;
         }
-        player.sendMessage("Set relation enemy with " + factionName + ".");
+        msg(player, "relation.set", "relation", "enemy", "faction", factionName);
     }
 }

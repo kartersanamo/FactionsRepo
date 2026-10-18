@@ -13,9 +13,9 @@ public class DefaultRankSubCommand extends FactionSubCommand {
     public void onDefaultRank(Player player, String rankName) {
         FactionRole rank;
         try { rank = FactionRole.valueOf(rankName.toUpperCase()); }
-        catch (IllegalArgumentException ex) { player.sendMessage("Invalid rank. Use MEMBER, MOD, or COLEADER."); return; }
-        if (rank == FactionRole.LEADER) { player.sendMessage("Default rank cannot be LEADER."); return; }
-        if (!factionSystem.setDefaultRank(player, rank)) { player.sendMessage("Only the leader can set default rank."); return; }
-        player.sendMessage("Default rank set to " + rank + ".");
+        catch (IllegalArgumentException ex) { msg(player, "defaultrank.invalid"); return; }
+        if (rank == FactionRole.LEADER) { msg(player, "defaultrank.cannot-leader"); return; }
+        if (!factionSystem.setDefaultRank(player, rank)) { msg(player, "defaultrank.not-leader"); return; }
+        msg(player, "defaultrank.success", "rank", rank);
     }
 }

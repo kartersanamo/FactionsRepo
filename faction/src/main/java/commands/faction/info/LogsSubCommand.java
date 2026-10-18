@@ -10,6 +10,6 @@ public class LogsSubCommand extends FactionSubCommand {
 
     @Subcommand("logs")
     public void onLogs(Player player) {
-        player.sendMessage("Faction logs are not stored yet.");
+        msg(player, "logs.none");
     }
 }

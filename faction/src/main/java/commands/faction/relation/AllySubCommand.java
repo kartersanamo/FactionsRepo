@@ -11,9 +11,9 @@ public class AllySubCommand extends FactionSubCommand {
     @Subcommand("ally")
     public void onCommand(Player player, String factionName) {
         if (!factionSystem.setRelation(player, factionName, "ally")) {
-            player.sendMessage("Could not set relation.");
+            msg(player, "relation.failed");
             return;
         }
-        player.sendMessage("Set relation ally with " + factionName + ".");
+        msg(player, "relation.set", "relation", "ally", "faction", factionName);
     }
 }

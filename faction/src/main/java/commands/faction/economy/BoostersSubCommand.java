@@ -10,6 +10,6 @@ public class BoostersSubCommand extends FactionSubCommand {
 
     @Subcommand("boosters")
     public void onBoosters(Player player) {
-        player.sendMessage("No active boosters.");
+        msg(player, "boosters.none");
     }
 }

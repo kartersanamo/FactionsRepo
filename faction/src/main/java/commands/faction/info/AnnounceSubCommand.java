@@ -12,7 +12,7 @@ public class AnnounceSubCommand extends FactionSubCommand {
     @Subcommand("announce|ann")
     public void onAnnounce(Player player, String message) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
-        factionSystem.broadcastToFaction(faction, "[Announcement] " + player.getName() + ": " + message);
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
+        factionSystem.broadcastToFaction(faction, "announce.format", "player", player.getName(), "message", message);
     }
 }

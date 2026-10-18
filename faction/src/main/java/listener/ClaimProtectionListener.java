@@ -21,7 +21,7 @@ public class ClaimProtectionListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if (!canBuild(event.getPlayer(), ChunkClaim.from(event.getBlock().getLocation()))) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("You cannot build here.");
+            factionSystem.getMessages().send(event.getPlayer(), "claim.protected");
         }
     }
 
@@ -29,7 +29,7 @@ public class ClaimProtectionListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         if (!canBuild(event.getPlayer(), ChunkClaim.from(event.getBlock().getLocation()))) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("You cannot build here.");
+            factionSystem.getMessages().send(event.getPlayer(), "claim.protected");
         }
     }
 
@@ -40,7 +40,7 @@ public class ClaimProtectionListener implements Listener {
         }
         if (!canBuild(event.getPlayer(), ChunkClaim.from(event.getClickedBlock().getLocation()))) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("You cannot build here.");
+            factionSystem.getMessages().send(event.getPlayer(), "claim.protected");
         }
     }
 

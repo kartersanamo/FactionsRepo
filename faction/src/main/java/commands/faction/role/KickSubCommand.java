@@ -19,18 +19,18 @@ public class KickSubCommand extends FactionSubCommand {
     public void onKickCommand(Player player, String targetName) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
 
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.isLeader()) {
-            player.sendMessage("Only the faction leader can kick.");
+            msg(player, "kick.not-leader");
             return;
         }
 
         if (player.getName().equalsIgnoreCase(targetName)) {
-            player.sendMessage("You cannot kick yourself.");
+            msg(player, "kick.self");
             return;
         }
 
@@ -42,23 +42,23 @@ public class KickSubCommand extends FactionSubCommand {
             }
         }
         if (target == null) {
-            player.sendMessage("That player is not in your faction.");
+            msg(player, "kick.not-member");
             return;
         }
         if (target.isLeader()) {
-            player.sendMessage("You cannot kick the faction leader.");
+            msg(player, "kick.is-leader");
             return;
         }
 
         if (!factionSystem.kickPlayer(player, targetName)) {
-            player.sendMessage("Could not kick that player.");
+            msg(player, "kick.failed");
             return;
         }
 
-        player.sendMessage("Kicked " + target.getName() + " from the faction.");
+        msg(player, "kick.success", "player", target.getName());
         Player onlineTarget = target.getPlayer();
         if (onlineTarget != null) {
-            onlineTarget.sendMessage("You were kicked from " + faction.getName() + ".");
+            msg(onlineTarget, "kick.notified", "faction", faction.getName());
         }
     }
 }

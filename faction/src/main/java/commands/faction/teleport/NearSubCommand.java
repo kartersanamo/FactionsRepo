@@ -13,7 +13,7 @@ public class NearSubCommand extends FactionSubCommand {
     @Subcommand("near")
     public void onNear(Player player) {
         Faction self = factionSystem.getFaction(player.getUniqueId());
-        player.sendMessage("Nearby players:");
+        msg(player, "teleport.near-header");
         int found = 0;
         for (Player other : Bukkit.getOnlinePlayers()) {
             if (other.equals(player)) continue;
@@ -21,16 +21,16 @@ public class NearSubCommand extends FactionSubCommand {
             double dist = other.getLocation().distance(player.getLocation());
             if (dist > 200) continue;
             Faction otherFac = factionSystem.getFaction(other.getUniqueId());
-            String fac = otherFac == null ? "Wilderness" : otherFac.getName();
+            String fac = otherFac == null ? messages.raw("general.wilderness") : otherFac.getName();
             String mark = "";
             if (self != null && otherFac != null) {
-                if (self.getId().equals(otherFac.getId())) mark = " (member)";
-                else if (self.getEnemyIds().contains(otherFac.getId())) mark = " (enemy)";
-                else if (self.getAllyIds().contains(otherFac.getId())) mark = " (ally)";
+                if (self.getId().equals(otherFac.getId())) mark = messages.raw("teleport.near-member");
+                else if (self.getEnemyIds().contains(otherFac.getId())) mark = messages.raw("teleport.near-enemy");
+                else if (self.getAllyIds().contains(otherFac.getId())) mark = messages.raw("teleport.near-ally");
             }
-            player.sendMessage("- " + other.getName() + " [" + fac + "]" + mark + " " + (int) dist + "m");
+            msg(player, "teleport.near-line", "player", other.getName(), "faction", fac, "mark", mark, "distance", (int) dist);
             found++;
         }
-        if (found == 0) player.sendMessage("No players nearby.");
+        if (found == 0) msg(player, "teleport.near-none");
     }
 }

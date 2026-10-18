@@ -10,6 +10,6 @@ public class VersionSubCommand extends FactionSubCommand {
 
     @Subcommand("version")
     public void onVersion(Player player) {
-        player.sendMessage(factionSystem.getPlugin().getDescription().getFullName());
+        msg(player, "admin.version", "version", factionSystem.getPlugin().getDescription().getFullName());
     }
 }

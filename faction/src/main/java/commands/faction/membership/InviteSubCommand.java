@@ -20,36 +20,36 @@ public class InviteSubCommand extends FactionSubCommand {
     public void onInviteCommand(Player player, String targetName) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
 
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.isLeader()) {
-            player.sendMessage("Only the faction leader can invite.");
+            msg(player, "invite.not-leader");
             return;
         }
 
         Player target = Bukkit.getPlayerExact(targetName);
         if (target == null) {
-            player.sendMessage("Player not found.");
+            msg(player, "general.player-not-found");
             return;
         }
         if (target.equals(player)) {
-            player.sendMessage("You cannot invite yourself.");
+            msg(player, "invite.self");
             return;
         }
         if (factionSystem.getFaction(target.getUniqueId()) != null) {
-            player.sendMessage("That player is already in a faction.");
+            msg(player, "invite.already-member");
             return;
         }
 
         if (!factionSystem.invitePlayer(player, target)) {
-            player.sendMessage("Could not invite that player.");
+            msg(player, "invite.failed");
             return;
         }
 
-        player.sendMessage("Invited " + target.getName() + " to " + faction.getName() + ".");
-        target.sendMessage("You were invited to " + faction.getName() + ". Use /f join " + faction.getName());
+        msg(player, "invite.success", "player", target.getName(), "faction", faction.getName());
+        msg(target, "invite.notified", "faction", faction.getName());
     }
 }

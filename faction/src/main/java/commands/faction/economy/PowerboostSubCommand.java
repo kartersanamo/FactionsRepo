@@ -14,8 +14,8 @@ public class PowerboostSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onPowerboost(Player player, String factionName, int boost) {
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
         factionSystem.setPowerBoost(faction, boost);
-        player.sendMessage("Set power boost for " + factionName + " to " + boost + ".");
+        msg(player, "power.boost-set", "faction", factionName, "boost", boost);
     }
 }

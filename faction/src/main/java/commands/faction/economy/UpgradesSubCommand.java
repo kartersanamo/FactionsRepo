@@ -12,9 +12,9 @@ public class UpgradesSubCommand extends FactionSubCommand {
     @Subcommand("upgrades")
     public void onUpgrades(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
-        player.sendMessage("Upgrades for " + faction.getName() + ":");
-        player.sendMessage("- Max vaults: " + faction.getMaxVaults());
-        player.sendMessage("- Power boost: +" + faction.getPowerBoost());
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
+        msg(player, "upgrades.header", "faction", faction.getName());
+        msg(player, "upgrades.vaults", "max", faction.getMaxVaults());
+        msg(player, "upgrades.powerboost", "boost", faction.getPowerBoost());
     }
 }

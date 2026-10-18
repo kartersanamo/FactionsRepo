@@ -6,6 +6,7 @@ import event.faction.FactionCreateEvent;
 import event.faction.FactionDisbandEvent;
 import event.player.FactionPlayerJoinEvent;
 import event.player.FactionPlayerLeaveEvent;
+import messages.Messages;
 import model.ChunkClaim;
 import model.Faction;
 import model.FactionPlayer;
@@ -38,6 +39,7 @@ public class FactionSystem {
     private final FactionStorage storage;
     private final Logger logger;
     private final JavaPlugin plugin;
+    private final Messages messages;
     private final FactionPlayerFlags flags = new FactionPlayerFlags();
     private final Random random = new Random();
     private final Set<String> reservedNames = new HashSet<>();
@@ -51,10 +53,15 @@ public class FactionSystem {
         this.plugin = plugin;
         this.storage = new FactionStorage(plugin.getDataFolder(), plugin.getLogger());
         this.logger = plugin.getLogger();
+        this.messages = new Messages(plugin);
     }
 
     public JavaPlugin getPlugin() {
         return plugin;
+    }
+
+    public Messages getMessages() {
+        return messages;
     }
 
     public void load() {
@@ -983,27 +990,19 @@ public class FactionSystem {
         return new Location(world, x, spawn.getY(), z, spawn.getYaw(), spawn.getPitch());
     }
 
-    public void broadcastToFaction(Faction faction, String message) {
-        if (faction == null || message == null) {
-            return;
-        }
-        for (FactionPlayer member : faction.getMembers()) {
-            Player online = member.getPlayer();
-            if (online != null) {
-                online.sendMessage(message);
-            }
-        }
+    public void broadcastToFaction(Faction faction, String path, Object... placeholders) {
+        messages.broadcastFaction(faction, path, placeholders);
     }
 
-    public void broadcastToAllies(Faction faction, String message) {
-        if (faction == null || message == null) {
+    public void broadcastToAllies(Faction faction, String path, Object... placeholders) {
+        if (faction == null) {
             return;
         }
-        broadcastToFaction(faction, message);
+        messages.broadcastFaction(faction, path, placeholders);
         for (UUID allyId : faction.getAllyIds()) {
             Faction ally = factions.get(allyId);
             if (ally != null) {
-                broadcastToFaction(ally, message);
+                messages.broadcastFaction(ally, path, placeholders);
             }
         }
     }

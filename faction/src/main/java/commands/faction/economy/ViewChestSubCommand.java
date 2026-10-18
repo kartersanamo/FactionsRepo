@@ -16,9 +16,9 @@ public class ViewChestSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onViewChest(Player player, String factionName) {
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
         Inventory inventory = Bukkit.createInventory(player, 54, "View Chest: " + faction.getName());
         player.openInventory(inventory);
-        player.sendMessage("Opened view of " + factionName + " chest (empty placeholder).");
+        msg(player, "vault.view-opened", "faction", factionName);
     }
 }

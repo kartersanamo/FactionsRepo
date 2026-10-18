@@ -1,6 +1,7 @@
 package systems;
 
 import model.ChunkClaim;
+import messages.Messages;
 import model.Faction;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -32,9 +33,11 @@ public class ClaimMapRenderer {
     };
 
     private final FactionSystem factionSystem;
+    private final Messages messages;
 
     public ClaimMapRenderer(FactionSystem factionSystem) {
         this.factionSystem = factionSystem;
+        this.messages = factionSystem.getMessages();
     }
 
     public void sendMap(Player player) {
@@ -57,12 +60,12 @@ public class ClaimMapRenderer {
             rows.add(row.toString());
         }
 
-        player.sendMessage(ChatColor.GOLD + "------------ " + ChatColor.WHITE + "N" + ChatColor.GOLD + " ------------");
+        messages.send(player, "map.header-north");
         for (String row : rows) {
-            player.sendMessage(row);
+            messages.sendRaw(player, row);
         }
-        player.sendMessage(ChatColor.GOLD + "W <--------+--------> E");
-        player.sendMessage(ChatColor.GOLD + "------------ " + ChatColor.WHITE + "S" + ChatColor.GOLD + " ------------");
+        messages.send(player, "map.footer-east-west");
+        messages.send(player, "map.footer-south");
         sendLegend(player, viewerFaction, symbols, colors);
     }
 
@@ -122,8 +125,8 @@ public class ClaimMapRenderer {
             Map<UUID, Character> symbols,
             Map<UUID, ChatColor> colors
     ) {
-        player.sendMessage(ChatColor.GRAY + String.valueOf(WILDERNESS) + ChatColor.WHITE + " Wilderness  "
-                + ChatColor.WHITE + ChatColor.BOLD + YOU + ChatColor.RESET + ChatColor.WHITE + " You");
+        messages.send(player, "map.legend-wilderness");
+        messages.send(player, "map.legend-you");
 
         for (Map.Entry<UUID, Character> entry : symbols.entrySet()) {
             Faction faction = factionSystem.getFactionById(entry.getKey());
@@ -131,11 +134,12 @@ public class ClaimMapRenderer {
                 continue;
             }
             ChatColor color = colors.get(entry.getKey());
-            String relation = "";
+            String you = "";
             if (viewerFaction != null && viewerFaction.getId().equals(faction.getId())) {
-                relation = ChatColor.GREEN + " (you)";
+                you = messages.raw("map.legend-you-suffix");
             }
-            player.sendMessage(color.toString() + entry.getValue() + ChatColor.WHITE + " " + faction.getName() + relation);
+            messages.send(player, "map.legend-faction", "color", "&" + color.getChar(),
+                    "symbol", entry.getValue(), "faction", faction.getName(), "you", you);
         }
     }
 }

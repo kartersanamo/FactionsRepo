@@ -12,9 +12,9 @@ public class PeacefulSubCommand extends FactionSubCommand {
     @Subcommand("peaceful")
     public void onPeaceful(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         boolean next = !faction.isPeaceful();
-        if (!factionSystem.setPeaceful(player, next)) { player.sendMessage("Only the leader can toggle peaceful."); return; }
-        player.sendMessage("Faction peaceful mode: " + next);
+        if (!factionSystem.setPeaceful(player, next)) { msg(player, "relation.peaceful-denied"); return; }
+        msg(player, next ? "relation.peaceful-on" : "relation.peaceful-off");
     }
 }

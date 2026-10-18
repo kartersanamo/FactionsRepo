@@ -14,6 +14,7 @@ public class ReloadSubCommand extends FactionSubCommand {
     public void onReload(Player player) {
         factionSystem.save();
         factionSystem.load();
-        player.sendMessage("Factions reloaded from disk.");
+        factionSystem.getMessages().reload();
+        msg(player, "admin.reloaded");
     }
 }

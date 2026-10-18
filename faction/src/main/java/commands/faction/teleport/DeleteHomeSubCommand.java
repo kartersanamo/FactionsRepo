@@ -11,9 +11,9 @@ public class DeleteHomeSubCommand extends FactionSubCommand {
     @Subcommand("delhome|deletehome")
     public void onDeleteHome(Player player) {
         if (!factionSystem.deleteHome(player)) {
-            player.sendMessage("Could not delete home.");
+            msg(player, "home.delete-failed");
             return;
         }
-        player.sendMessage("Faction home deleted.");
+        msg(player, "home.deleted");
     }
 }

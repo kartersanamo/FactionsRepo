@@ -12,6 +12,6 @@ public class ConfigSubCommand extends FactionSubCommand {
     @Subcommand("config")
     @CommandPermission("factions.admin")
     public void onConfig(Player player) {
-        player.sendMessage("Config file editing is not wired yet. Use factions.yml data + plugin reload.");
+        msg(player, "admin.config");
     }
 }

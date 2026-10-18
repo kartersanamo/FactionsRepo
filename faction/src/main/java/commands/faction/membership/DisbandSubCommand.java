@@ -17,21 +17,21 @@ public class DisbandSubCommand extends FactionSubCommand {
     public void onDisbandCommand(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
 
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.isLeader()) {
-            player.sendMessage("Only the faction leader can disband.");
+            msg(player, "disband.not-leader");
             return;
         }
 
         String name = faction.getName();
         if (!factionSystem.disbandFaction(player)) {
-            player.sendMessage("Could not disband the faction.");
+            msg(player, "disband.failed");
             return;
         }
-        player.sendMessage("Faction " + name + " has been disbanded.");
+        msg(player, "disband.success", "faction", name);
     }
 }

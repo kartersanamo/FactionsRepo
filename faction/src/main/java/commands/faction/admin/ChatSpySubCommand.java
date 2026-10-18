@@ -13,6 +13,6 @@ public class ChatSpySubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onChatSpy(Player player) {
         boolean enabled = factionSystem.getFlags().toggleChatSpy(player.getUniqueId());
-        player.sendMessage("Chat spy " + (enabled ? "enabled" : "disabled") + ".");
+        msg(player, enabled ? "admin.chatspy-on" : "admin.chatspy-off");
     }
 }

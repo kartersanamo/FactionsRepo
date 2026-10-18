@@ -12,8 +12,8 @@ public class WildSubCommand extends FactionSubCommand {
     @Subcommand("wild")
     public void onWild(Player player) {
         Location location = factionSystem.findWildernessTeleport(player);
-        if (location == null) { player.sendMessage("Could not find wilderness."); return; }
+        if (location == null) { msg(player, "teleport.wild-failed"); return; }
         player.teleport(location);
-        player.sendMessage("Teleported to wilderness.");
+        msg(player, "teleport.wild");
     }
 }

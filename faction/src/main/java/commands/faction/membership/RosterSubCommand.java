@@ -16,12 +16,14 @@ public class RosterSubCommand extends FactionSubCommand {
         Faction faction = factionName == null || factionName.isEmpty()
                 ? factionSystem.getFaction(player.getUniqueId())
                 : factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
-        player.sendMessage("Roster for " + faction.getName() + ":");
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
+        msg(player, "roster.header", "faction", faction.getName());
         for (FactionPlayer member : faction.getMembers()) {
-            String title = member.getTitle().isEmpty() ? "" : " [" + member.getTitle() + "]";
-            String online = member.isOnline() ? "online" : "offline";
-            player.sendMessage("- " + member.getName() + title + " (" + member.getRole() + ", " + online + ")");
+            String title = member.getTitle().isEmpty() ? ""
+                    : messages.format("roster.title-format", "title", member.getTitle());
+            String status = messages.raw(member.isOnline() ? "roster.online" : "roster.offline");
+            msg(player, "roster.line", "player", member.getName(), "title", title,
+                    "role", member.getRole(), "status", status);
         }
     }
 }

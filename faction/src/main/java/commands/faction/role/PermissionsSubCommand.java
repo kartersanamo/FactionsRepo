@@ -10,10 +10,10 @@ public class PermissionsSubCommand extends FactionSubCommand {
 
     @Subcommand("perms|permissions")
     public void onPerms(Player player) {
-        player.sendMessage("Role permissions:");
-        player.sendMessage("LEADER: all");
-        player.sendMessage("COLEADER: invite, kick, claim, home");
-        player.sendMessage("MOD: invite, claim");
-        player.sendMessage("MEMBER: basic");
+        msg(player, "perms.header");
+        msg(player, "perms.leader");
+        msg(player, "perms.coleader");
+        msg(player, "perms.mod");
+        msg(player, "perms.member");
     }
 }

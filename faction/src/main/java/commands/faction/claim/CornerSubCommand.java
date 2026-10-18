@@ -13,8 +13,8 @@ public class CornerSubCommand extends FactionSubCommand {
     public void onCorner(Player player) {
         int index = factionSystem.getFlags().nextCornerIndex(player.getUniqueId());
         Location location = factionSystem.getCornerLocation(player, index);
-        if (location == null) { player.sendMessage("Could not find corner."); return; }
+        if (location == null) { msg(player, "claim.corner-failed"); return; }
         player.teleport(location);
-        player.sendMessage("Teleported to corner " + (index + 1) + "/4.");
+        msg(player, "claim.corner", "index", index + 1);
     }
 }

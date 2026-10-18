@@ -14,11 +14,11 @@ public class OwnerListSubCommand extends FactionSubCommand {
     @Subcommand("ownerlist")
     public void onOwnerList(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
-        player.sendMessage("Leadership for " + faction.getName() + ":");
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
+        msg(player, "ownerlist.header", "faction", faction.getName());
         for (FactionPlayer member : faction.getMembers()) {
             if (member.getRole() == FactionRole.LEADER || member.getRole() == FactionRole.COLEADER) {
-                player.sendMessage("- " + member.getName() + " (" + member.getRole() + ")");
+                msg(player, "ownerlist.line", "player", member.getName(), "role", member.getRole());
             }
         }
     }

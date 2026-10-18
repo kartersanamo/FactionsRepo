@@ -14,9 +14,9 @@ public class ColeaderSubCommand extends FactionSubCommand {
     @CommandCompletion("@players")
     public void onColeader(Player player, String target) {
         if (!factionSystem.setRole(player, target, FactionRole.COLEADER)) {
-            player.sendMessage("Could not set coleader.");
+            msg(player, "coleader.failed");
             return;
         }
-        player.sendMessage(target + " is now a coleader.");
+        msg(player, "coleader.success", "player", target);
     }
 }

@@ -10,6 +10,6 @@ public class BundleSubCommand extends FactionSubCommand {
 
     @Subcommand("bundle")
     public void onBundle(Player player) {
-        player.sendMessage("Faction bundles are not configured yet.");
+        msg(player, "misc.bundle");
     }
 }

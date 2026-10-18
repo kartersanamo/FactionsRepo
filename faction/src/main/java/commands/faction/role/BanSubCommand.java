@@ -13,9 +13,9 @@ public class BanSubCommand extends FactionSubCommand {
     @CommandCompletion("@players")
     public void onBan(Player player, String target) {
         if (!factionSystem.banPlayer(player, target)) {
-            player.sendMessage("Could not ban that player.");
+            msg(player, "ban.failed");
             return;
         }
-        player.sendMessage("Banned " + target + " from the faction.");
+        msg(player, "ban.success", "player", target);
     }
 }

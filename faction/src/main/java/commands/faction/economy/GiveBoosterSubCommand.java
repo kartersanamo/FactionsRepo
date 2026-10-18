@@ -13,9 +13,9 @@ public class GiveBoosterSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onGiveBooster(Player player, String factionName, String boosterType) {
         if (factionSystem.getFactionByName(factionName) == null) {
-            player.sendMessage("Faction not found.");
+            msg(player, "general.faction-not-found");
             return;
         }
-        player.sendMessage("Granted booster '" + boosterType + "' to " + factionName + " (placeholder).");
+        msg(player, "boosters.given", "booster", boosterType, "faction", factionName);
     }
 }

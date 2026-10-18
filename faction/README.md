@@ -15,8 +15,23 @@ Main class: `FactionPlugin` (`plugin.yml`).
 ## Runtime
 
 - Persists to `plugins/Faction/factions.yml` (load on enable, save on disable and after changes).
+- All player text lives in `plugins/Faction/messages.yml` (Saber/FactionsUUID-style `&e[&6Factions&e]` prefix). Edit freely; `/f reload` reloads it.
 - Claim protection (bypass via `/f bypass`).
 - Autoclaim, faction/ally chat, and fly-in-claims via `FactionListener`.
+
+## Messaging API
+
+```java
+// From any FactionSubCommand:
+msg(player, "create.success", "faction", name);
+
+// From anywhere with FactionSystem:
+factionSystem.getMessages().send(player, "claim.protected");
+factionSystem.getMessages().sendRaw(player, "&aCustom &eline");
+factionSystem.broadcastToFaction(faction, "announce.format", "player", name, "message", text);
+```
+
+Placeholders use `%name%` in YAML. `%prefix%` is always injected.
 
 ## Commands
 

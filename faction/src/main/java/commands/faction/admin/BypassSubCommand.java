@@ -13,6 +13,6 @@ public class BypassSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onBypass(Player player) {
         boolean enabled = factionSystem.getFlags().toggleBypass(player.getUniqueId());
-        player.sendMessage("Bypass " + (enabled ? "enabled" : "disabled") + ".");
+        msg(player, enabled ? "admin.bypass-on" : "admin.bypass-off");
     }
 }

@@ -15,30 +15,30 @@ public class JoinSubCommand extends FactionSubCommand {
     @Subcommand("join")
     public void onJoinCommand(Player player, String factionName) {
         if (factionSystem.getFaction(player.getUniqueId()) != null) {
-            player.sendMessage("You are already in a faction.");
+            msg(player, "general.already-in-faction");
             return;
         }
 
         Faction faction = factionSystem.getFactionByName(factionName);
         if (faction == null) {
-            player.sendMessage("Faction not found.");
+            msg(player, "general.faction-not-found");
             return;
         }
         if (faction.getBanned().contains(player.getUniqueId())) {
-            player.sendMessage("You are banned from that faction.");
+            msg(player, "join.banned");
             return;
         }
 
         boolean invited = factionSystem.getInvites(player.getUniqueId()).contains(faction.getId());
         if (!faction.isOpen() && !invited) {
-            player.sendMessage("You do not have an invite to that faction.");
+            msg(player, "join.no-invite");
             return;
         }
 
         if (!factionSystem.joinFaction(player, factionName)) {
-            player.sendMessage("Could not join the faction.");
+            msg(player, "join.failed");
             return;
         }
-        player.sendMessage("You joined " + faction.getName() + ".");
+        msg(player, "join.success", "faction", faction.getName());
     }
 }

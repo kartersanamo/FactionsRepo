@@ -13,7 +13,7 @@ public class ShowInvitesSubCommand extends FactionSubCommand {
     @Subcommand("invites|showinvites")
     public void onShowInvites(Player player) {
         List<String> invites = factionSystem.getInviteFactionNames(player);
-        if (invites.isEmpty()) { player.sendMessage("You have no invites."); return; }
-        player.sendMessage("Invites: " + String.join(", ", invites));
+        if (invites.isEmpty()) { msg(player, "invites.none"); return; }
+        msg(player, "invites.list", "list", String.join(", ", invites));
     }
 }

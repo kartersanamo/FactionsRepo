@@ -17,25 +17,25 @@ public class UnclaimSubCommand extends FactionSubCommand {
     public void onUnclaimCommand(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
 
         ChunkClaim claim = ChunkClaim.from(player.getLocation());
         Faction owner = factionSystem.getFactionAt(claim);
         if (owner == null) {
-            player.sendMessage("This chunk is not claimed.");
+            msg(player, "claim.unclaim-none");
             return;
         }
         if (!owner.getId().equals(faction.getId())) {
-            player.sendMessage("This chunk belongs to " + owner.getName() + ".");
+            msg(player, "claim.unclaim-other", "faction", owner.getName());
             return;
         }
 
         if (!factionSystem.unclaimChunk(player, claim)) {
-            player.sendMessage("Could not unclaim this chunk.");
+            msg(player, "claim.unclaim-failed");
             return;
         }
-        player.sendMessage("Unclaimed chunk " + claim.getX() + ", " + claim.getZ() + ".");
+        msg(player, "claim.unclaim-success", "chunk", claim.getX(), "chunkz", claim.getZ());
     }
 }

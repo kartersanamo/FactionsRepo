@@ -11,9 +11,9 @@ public class TagSubCommand extends FactionSubCommand {
     @Subcommand("tag|rename")
     public void onTag(Player player, String newName) {
         if (!factionSystem.setTag(player, newName)) {
-            player.sendMessage("Could not rename faction.");
+            msg(player, "tag.failed");
             return;
         }
-        player.sendMessage("Faction renamed to " + newName + ".");
+        msg(player, "tag.success", "faction", newName);
     }
 }

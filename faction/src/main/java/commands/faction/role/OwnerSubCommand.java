@@ -13,9 +13,9 @@ public class OwnerSubCommand extends FactionSubCommand {
     @CommandCompletion("@players")
     public void onOwner(Player player, String target) {
         if (!factionSystem.transferLeadership(player, target)) {
-            player.sendMessage("Could not transfer leadership.");
+            msg(player, "owner.failed");
             return;
         }
-        player.sendMessage("Leadership transferred to " + target + ".");
+        msg(player, "owner.success", "player", target);
     }
 }

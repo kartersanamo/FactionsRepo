@@ -16,15 +16,15 @@ public class ShowClaimsSubCommand extends FactionSubCommand {
         Faction faction = factionName == null || factionName.isEmpty()
                 ? factionSystem.getFaction(player.getUniqueId())
                 : factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
-        if (faction.getClaims().isEmpty()) { player.sendMessage("No claims."); return; }
-        player.sendMessage("Claims for " + faction.getName() + " (" + faction.getLand() + "):");
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
+        if (faction.getClaims().isEmpty()) { msg(player, "claim.show-none"); return; }
+        msg(player, "claim.show-header", "faction", faction.getName(), "amount", faction.getLand());
         int shown = 0;
         for (String key : faction.getClaims()) {
             ChunkClaim claim = ChunkClaim.fromKey(key);
-            player.sendMessage("- " + claim.getWorldName() + " " + claim.getX() + ", " + claim.getZ());
+            msg(player, "claim.show-line", "world", claim.getWorldName(), "chunk", claim.getX(), "chunkz", claim.getZ());
             shown++;
-            if (shown >= 25) { player.sendMessage("...and more"); break; }
+            if (shown >= 25) { msg(player, "claim.show-more"); break; }
         }
     }
 }

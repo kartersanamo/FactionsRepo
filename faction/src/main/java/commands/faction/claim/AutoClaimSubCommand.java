@@ -11,10 +11,10 @@ public class AutoClaimSubCommand extends FactionSubCommand {
     @Subcommand("autoclaim")
     public void onAutoClaim(Player player) {
         if (factionSystem.getFaction(player.getUniqueId()) == null) {
-            player.sendMessage("You are not in a faction.");
+            msg(player, "general.not-in-faction");
             return;
         }
         boolean enabled = factionSystem.getFlags().toggleAutoClaim(player.getUniqueId());
-        player.sendMessage("Autoclaim " + (enabled ? "enabled" : "disabled") + ".");
+        msg(player, enabled ? "claim.autoclaim-on" : "claim.autoclaim-off");
     }
 }

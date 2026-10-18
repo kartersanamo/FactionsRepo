@@ -14,8 +14,8 @@ public class SetMaxVaultsSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onSetMaxVaults(Player player, String factionName, int max) {
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
         factionSystem.setMaxVaults(faction, max);
-        player.sendMessage("Max vaults for " + factionName + " set to " + max + ".");
+        msg(player, "vault.max-set", "faction", factionName, "max", max);
     }
 }

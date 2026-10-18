@@ -13,9 +13,9 @@ public class SetBaseClaimSubCommand extends FactionSubCommand {
     public void onSetBase(Player player) {
         ChunkClaim claim = ChunkClaim.from(player.getLocation());
         if (!factionSystem.setBaseClaim(player, claim)) {
-            player.sendMessage("Could not set base claim. Stand in your claimed land.");
+            msg(player, "claim.base-failed");
             return;
         }
-        player.sendMessage("Base claim set to " + claim.getX() + ", " + claim.getZ() + ".");
+        msg(player, "claim.base-set", "chunk", claim.getX(), "chunkz", claim.getZ());
     }
 }

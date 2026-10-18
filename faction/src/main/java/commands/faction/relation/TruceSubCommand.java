@@ -11,9 +11,9 @@ public class TruceSubCommand extends FactionSubCommand {
     @Subcommand("truce")
     public void onCommand(Player player, String factionName) {
         if (!factionSystem.setRelation(player, factionName, "truce")) {
-            player.sendMessage("Could not set relation.");
+            msg(player, "relation.failed");
             return;
         }
-        player.sendMessage("Set relation truce with " + factionName + ".");
+        msg(player, "relation.set", "relation", "truce", "faction", factionName);
     }
 }

@@ -13,9 +13,9 @@ public class PromoteSubCommand extends FactionSubCommand {
     @CommandCompletion("@players")
     public void onPromote(Player player, String target) {
         if (!factionSystem.promoteMember(player, target)) {
-            player.sendMessage("Could not promote that player.");
+            msg(player, "promote.failed");
             return;
         }
-        player.sendMessage("Promoted " + target + ".");
+        msg(player, "promote.success", "player", target);
     }
 }

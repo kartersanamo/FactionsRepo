@@ -12,12 +12,12 @@ public class ReserveSubCommand extends FactionSubCommand {
     @Subcommand("reserve")
     @CommandPermission("factions.reserve")
     public void onReserve(Player player, String name) {
-        if (!factionSystem.isValidFactionName(name)) { player.sendMessage("Invalid name."); return; }
+        if (!factionSystem.isValidFactionName(name)) { msg(player, "reserve.invalid"); return; }
         if (factionSystem.doesFactionExist(name) || factionSystem.isReserved(name)) {
-            player.sendMessage("That name is already taken or reserved.");
+            msg(player, "reserve.taken");
             return;
         }
         factionSystem.reserveName(name);
-        player.sendMessage("Reserved faction name " + name + ".");
+        msg(player, "reserve.success", "faction", name);
     }
 }

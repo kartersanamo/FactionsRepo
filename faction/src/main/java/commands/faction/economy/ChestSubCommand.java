@@ -14,9 +14,9 @@ public class ChestSubCommand extends FactionSubCommand {
     @Subcommand("chest")
     public void onChest(Player player) {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) { player.sendMessage("You are not in a faction."); return; }
+        if (faction == null) { msg(player, "general.not-in-faction"); return; }
         Inventory inventory = Bukkit.createInventory(player, 54, "Faction Chest");
         player.openInventory(inventory);
-        player.sendMessage("Opened temporary faction chest (not persisted yet).");
+        msg(player, "vault.chest-opened");
     }
 }

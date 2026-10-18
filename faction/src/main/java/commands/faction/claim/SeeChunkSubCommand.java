@@ -15,8 +15,8 @@ public class SeeChunkSubCommand extends FactionSubCommand {
         boolean enabled = factionSystem.getFlags().toggleSeeChunk(player.getUniqueId());
         ChunkClaim claim = ChunkClaim.from(player.getLocation());
         Faction owner = factionSystem.getFactionAt(claim);
-        player.sendMessage("SeeChunk " + (enabled ? "on" : "off") + ". Current chunk: "
-                + claim.getX() + ", " + claim.getZ()
-                + " (" + (owner == null ? "Wilderness" : owner.getName()) + ")");
+        msg(player, "claim.seechunk", "state", enabled ? "on" : "off",
+                "chunk", claim.getX(), "chunkz", claim.getZ(),
+                "owner", owner == null ? messages.raw("general.wilderness") : owner.getName());
     }
 }

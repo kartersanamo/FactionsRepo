@@ -11,9 +11,9 @@ public class DeleteInviteSubCommand extends FactionSubCommand {
     @Subcommand("deinvite|deleteinvite")
     public void onDeleteInvite(Player player, String factionName) {
         if (!factionSystem.deleteInvite(player, factionName)) {
-            player.sendMessage("No invite from that faction.");
+            msg(player, "invites.missing");
             return;
         }
-        player.sendMessage("Deleted invite from " + factionName + ".");
+        msg(player, "invites.deleted", "faction", factionName);
     }
 }

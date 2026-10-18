@@ -11,6 +11,6 @@ public class ScoreboardSubCommand extends FactionSubCommand {
     @Subcommand("scoreboard|sb")
     public void onScoreboard(Player player) {
         boolean enabled = factionSystem.getFlags().toggleScoreboardEnabled(player.getUniqueId());
-        player.sendMessage("Faction scoreboard " + (enabled ? "enabled" : "disabled") + " (sidebar coming later).");
+        msg(player, enabled ? "scoreboard.on" : "scoreboard.off");
     }
 }

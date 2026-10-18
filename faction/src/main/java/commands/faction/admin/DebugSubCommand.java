@@ -12,10 +12,10 @@ public class DebugSubCommand extends FactionSubCommand {
     @Subcommand("debug")
     @CommandPermission("factions.admin")
     public void onDebug(Player player) {
-        player.sendMessage("Factions: " + factionSystem.getAllFactions().size());
-        player.sendMessage("Your faction: " + (factionSystem.getFaction(player.getUniqueId()) == null
+        msg(player, "admin.debug-factions", "amount", factionSystem.getAllFactions().size());
+        msg(player, "admin.debug-yours", "faction", (factionSystem.getFaction(player.getUniqueId()) == null
                 ? "none" : factionSystem.getFaction(player.getUniqueId()).getName()));
-        player.sendMessage("Bypass: " + factionSystem.getFlags().hasBypass(player.getUniqueId()));
-        player.sendMessage("Autoclaim: " + factionSystem.getFlags().hasAutoClaim(player.getUniqueId()));
+        msg(player, "admin.debug-bypass", "state", factionSystem.getFlags().hasBypass(player.getUniqueId()));
+        msg(player, "admin.debug-autoclaim", "state", factionSystem.getFlags().hasAutoClaim(player.getUniqueId()));
     }
 }

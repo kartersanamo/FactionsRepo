@@ -12,8 +12,8 @@ public class StuckSubCommand extends FactionSubCommand {
     @Subcommand("stuck")
     public void onStuck(Player player) {
         Location location = factionSystem.findStuckTeleport(player);
-        if (location == null) { player.sendMessage("Could not find a safe spot."); return; }
+        if (location == null) { msg(player, "teleport.stuck-failed"); return; }
         player.teleport(location);
-        player.sendMessage("Teleported out of claimed land.");
+        msg(player, "teleport.stuck");
     }
 }

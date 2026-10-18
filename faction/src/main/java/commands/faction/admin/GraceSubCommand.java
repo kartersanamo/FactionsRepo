@@ -14,9 +14,9 @@ public class GraceSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onGrace(Player player, String factionName) {
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { player.sendMessage("Faction not found."); return; }
+        if (faction == null) { msg(player, "general.faction-not-found"); return; }
         boolean next = !faction.isGrace();
         factionSystem.setGrace(faction, next);
-        player.sendMessage("Grace for " + factionName + ": " + next);
+        msg(player, "admin.grace", "faction", factionName, "state", next);
     }
 }
