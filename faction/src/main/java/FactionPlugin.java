@@ -1,6 +1,7 @@
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.BukkitCommandManager;
 import commands.faction.claim.ClaimSubCommand;
+import commands.faction.claim.MapSubCommand;
 import commands.faction.claim.UnclaimSubCommand;
 import commands.faction.info.ShowSubCommand;
 import commands.faction.membership.CreateFactionSubCommand;
@@ -51,7 +52,8 @@ public class FactionPlugin extends JavaPlugin {
                 new KickSubCommand(factionSystem),
                 new ShowSubCommand(factionSystem),
                 new ClaimSubCommand(factionSystem),
-                new UnclaimSubCommand(factionSystem)
+                new UnclaimSubCommand(factionSystem),
+                new MapSubCommand(factionSystem)
         );
     }
 }

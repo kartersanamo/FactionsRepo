@@ -134,6 +134,7 @@
         <module>alt</module>
         <module>chat</module>
         <module>logger</module>
+        <module>database</module>
     </modules>
 
     <properties>

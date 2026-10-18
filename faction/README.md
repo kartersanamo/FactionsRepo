@@ -30,6 +30,7 @@ Main class: `FactionPlugin` (`plugin.yml`).
 | `/f show\|who [faction\|player]` | Show faction info |
 | `/f claim` | Claim the chunk you stand in |
 | `/f unclaim` | Unclaim your chunk |
+| `/f map` | Show nearby claims in chat |
 
 ## Commands (package layout)
 

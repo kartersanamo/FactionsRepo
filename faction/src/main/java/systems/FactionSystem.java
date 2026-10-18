@@ -78,6 +78,10 @@ public class FactionSystem {
         return getFaction(fplayer.getUniqueId());
     }
 
+    public Faction getFactionById(UUID factionId) {
+        return factions.get(factionId);
+    }
+
     public Faction getFactionByName(String factionName) {
         for (Faction faction : factions.values()) {
             if (faction.getName().equalsIgnoreCase(factionName)) {
