@@ -11,6 +11,7 @@ import model.ChunkClaim;
 import model.Faction;
 import model.FactionPlayer;
 import model.FactionRelation;
+import model.FactionResult;
 import model.FactionRole;
 import model.NamedLocation;
 import org.bukkit.Bukkit;
@@ -738,27 +739,27 @@ public class FactionSystem {
         return true;
     }
 
-    public boolean claimChunk(Player player, ChunkClaim claim) {
+    public FactionResult claimChunk(Player player, ChunkClaim claim) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canClaim()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         if (claims.containsKey(claim.toKey())) {
-            return false;
+            return FactionResult.ALREADY_CLAIMED;
         }
         if (faction.getLand() >= faction.getPower()) {
-            return false;
+            return FactionResult.NOT_ENOUGH_POWER;
         }
 
         claims.put(claim.toKey(), faction.getId());
         faction.getClaims().add(claim.toKey());
         Bukkit.getPluginManager().callEvent(new LandClaimEvent(faction, claim));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     public boolean unclaimChunk(Player player, ChunkClaim claim) {
@@ -803,29 +804,24 @@ public class FactionSystem {
         return true;
     }
 
-    public boolean setHome(Player player) {
+    public FactionResult setHome(Player player) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            getMessages().send(player, "general-not-in-faction");
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canSetHome()) {
-            getMessages().send(player, "general.no-permission");
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
-        Location location = player.getLocation();
-        ChunkClaim claim = ChunkClaim.from(location);
+        ChunkClaim claim = ChunkClaim.from(player.getLocation());
         Faction chunkOwner = getFactionAt(claim);
-
         if (chunkOwner == null || !chunkOwner.getId().equals(faction.getId())) {
-            getMessages().send(player, "home.not-your-claim");
-            return false;
+            return FactionResult.NOT_YOUR_CLAIM;
         }
 
         faction.setHome(NamedLocation.from(player.getLocation()));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     public boolean deleteHome(Player player) {

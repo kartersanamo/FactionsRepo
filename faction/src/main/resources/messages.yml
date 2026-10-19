@@ -135,6 +135,7 @@ relation:
 
 claim:
   success: "%prefix%&7Claimed land at &e%chunk%x&7, &e%chunkz%&7."
+  radius-zero: "%prefix%&cClaim radius must be greater than zero."
   already: "%prefix%&cThis land is already claimed by &e%faction%&c."
   failed: "%prefix%&cCould not claim this land."
   unclaim-success: "%prefix%&7Unclaimed land at &e%chunk%x&7, &e%chunkz%&7."

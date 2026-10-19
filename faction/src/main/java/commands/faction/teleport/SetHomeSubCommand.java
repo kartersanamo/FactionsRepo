@@ -2,6 +2,7 @@ package commands.faction.teleport;
 
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -10,8 +11,23 @@ public class SetHomeSubCommand extends FactionSubCommand {
 
     @Subcommand("sethome")
     public void onSetHome(Player player) {
-        if (factionSystem.setHome(player)) {
-            msg(player, "home.set");
+        FactionResult result = factionSystem.setHome(player);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "home.set");
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case NO_PERMISSION:
+                msg(player, "general.no-permission");
+                break;
+            case NOT_YOUR_CLAIM:
+                msg(player, "home.not-your-claim");
+                break;
+            default:
+                msg(player, "home.set-failed");
+                break;
         }
     }
 }

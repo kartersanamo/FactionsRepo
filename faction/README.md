@@ -21,13 +21,18 @@ Main class: `FactionPlugin` (`plugin.yml`).
 
 ## Messaging API
 
-```java
-// From any FactionSubCommand:
-msg(player, "create.success", "faction", name);
+Commands own player messages. The system returns `FactionResult` (or `boolean` for simple cases); subcommands map the result to `messages.yml` keys.
 
-// From anywhere with FactionSystem:
+```java
+FactionResult result = factionSystem.setHome(player);
+switch (result) {
+    case SUCCESS -> msg(player, "home.set");
+    case NOT_YOUR_CLAIM -> msg(player, "home.not-your-claim");
+    // ...
+}
+
+// Listeners / non-command code may still use:
 factionSystem.getMessages().send(player, "claim.protected");
-factionSystem.getMessages().sendRaw(player, "&aCustom &eline");
 factionSystem.broadcastToFaction(faction, "announce.format", "player", name, "message", text);
 ```
 
