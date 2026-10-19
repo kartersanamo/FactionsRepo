@@ -41,6 +41,8 @@ Roles: `kick`, `ban`, `promote`, `coleader`, `mod`, `owner`, `ownerlist`, `defau
 
 Relations: `ally`, `enemy`, `truce`, `peaceful`
 
+Relation colors (via `FactionSystem.getRelation` / `getRelationColor`): self green, ally light purple, truce aqua, enemy red, neutral white.
+
 Claims: `claim`, `unclaim`, `unclaimall`, `autoclaim`, `map`, `showclaims`, `seechunk`, `setbase`, `corner`, `safeunclaimall`, `warzoneunclaimall`
 
 Teleport: `sethome`, `home`, `delhome`, `setwarp`, `warp`, `stuck`, `wild`, `fly`, `near`, `coords`

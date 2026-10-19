@@ -10,9 +10,11 @@ import messages.Messages;
 import model.ChunkClaim;
 import model.Faction;
 import model.FactionPlayer;
+import model.FactionRelation;
 import model.FactionRole;
 import model.NamedLocation;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -498,6 +500,33 @@ public class FactionSystem {
         }
         save();
         return true;
+    }
+
+    /**
+     * Relation of {@code other} as seen by {@code viewer}.
+     * Null factions are treated as neutral (e.g. wilderness).
+     */
+    public FactionRelation getRelation(Faction viewer, Faction other) {
+        if (viewer == null || other == null) {
+            return FactionRelation.NEUTRAL;
+        }
+        if (viewer.getId().equals(other.getId())) {
+            return FactionRelation.SELF;
+        }
+        if (viewer.getAllyIds().contains(other.getId())) {
+            return FactionRelation.ALLY;
+        }
+        if (viewer.getTruceIds().contains(other.getId())) {
+            return FactionRelation.TRUCE;
+        }
+        if (viewer.getEnemyIds().contains(other.getId())) {
+            return FactionRelation.ENEMY;
+        }
+        return FactionRelation.NEUTRAL;
+    }
+
+    public ChatColor getRelationColor(Faction viewer, Faction other) {
+        return getRelation(viewer, other).getColor();
     }
 
     public boolean setOpen(Player player, boolean open) {

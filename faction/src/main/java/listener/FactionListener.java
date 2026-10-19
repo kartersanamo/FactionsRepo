@@ -4,12 +4,14 @@ import model.ChunkClaim;
 import model.Faction;
 import model.FactionChatMode;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.github.paperspigot.Title;
 import systems.FactionSystem;
 
 public class FactionListener implements Listener {
@@ -20,7 +22,43 @@ public class FactionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlayerMove(PlayerMoveEvent event) {
+    public void onPlayerMoveNewChunkNotify(PlayerMoveEvent event) {
+        if (event.getFrom().getChunk().getX() == event.getTo().getChunk().getX()
+                && event.getFrom().getChunk().getZ() == event.getTo().getChunk().getZ()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        ChunkClaim fromClaim = ChunkClaim.from(event.getFrom());
+        ChunkClaim toClaim = ChunkClaim.from(event.getTo());
+
+        Faction fromFaction = factionSystem.getFactionAt(fromClaim);
+        Faction toFaction = factionSystem.getFactionAt(toClaim);
+        Faction viewerFaction = factionSystem.getFaction(player.getUniqueId());
+
+        if (fromFaction == null && toFaction == null) {
+            return;
+        }
+
+        if (toFaction == fromFaction) {
+            return;
+        }
+
+        ChatColor fromRelationColor = factionSystem.getRelationColor(viewerFaction, fromFaction);
+        ChatColor toRelationColor = factionSystem.getRelationColor(viewerFaction, toFaction);
+        factionSystem.getMessages().send(player, "territory.change",
+                "from_faction", fromFaction != null ? (fromRelationColor + fromFaction.getName()) : "&2Wilderness",
+                "to_faction", toFaction != null ? (toRelationColor + toFaction.getName()) : "&2Wilderness");
+
+        if (toFaction != null) {
+            Title title = new Title(toRelationColor + toFaction.getName(), toFaction.getDescription() == null ? "No description set." : toFaction.getDescription(), 10, 70, 20);
+            player.sendTitle(title);
+        }
+    }
+
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerMoveAutoClaim(PlayerMoveEvent event) {
         if (event.getFrom().getChunk().getX() == event.getTo().getChunk().getX()
                 && event.getFrom().getChunk().getZ() == event.getTo().getChunk().getZ()) {
             return;
@@ -32,6 +70,18 @@ public class FactionListener implements Listener {
         if (factionSystem.getFlags().hasAutoClaim(player.getUniqueId())) {
             factionSystem.claimChunk(player, toClaim);
         }
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerMoveFactionFly(PlayerMoveEvent event) {
+        if (event.getFrom().getChunk().getX() == event.getTo().getChunk().getX()
+                && event.getFrom().getChunk().getZ() == event.getTo().getChunk().getZ()) {
+            return;
+        }
+
+        Player player = event.getPlayer();
+        ChunkClaim toClaim = ChunkClaim.from(event.getTo());
 
         if (factionSystem.getFlags().hasFly(player.getUniqueId())) {
             Faction faction = factionSystem.getFaction(player.getUniqueId());

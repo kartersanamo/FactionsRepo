@@ -256,6 +256,9 @@ show:
   - "&2* &aAlts: &f%alts%"
   - "&8&l&m-------------------------------------"
 
+territory:
+  change: "%prefix% &fLeaving %from_faction%&f, Entering %to_faction%&f."
+
 list:
   header: "%prefix%&6Factions:"
   line: "&e%index%. &f%faction% &7- land &e%land%&7, members &e%members%%open%"
