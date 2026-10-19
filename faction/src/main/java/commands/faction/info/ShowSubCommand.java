@@ -59,7 +59,7 @@ public class ShowSubCommand extends FactionSubCommand {
                 "power", faction.getPower(),
                 "maxpower", faction.getMaxPower(),
                 "shield_status", faction.isShielded() ? "&aOn" : "&cOff",
-                "shield_time", faction.isShielded() ? "Grace period" : "—",
+                "shield_time", faction.isShielded() ? "Grace period" : "No time set.",
                 "founded", faction.getCreationDate() != null
                         ? FOUNDED_FORMAT.format(faction.getCreationDate())
                         : "Unknown",
