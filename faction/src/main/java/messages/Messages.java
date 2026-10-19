@@ -61,6 +61,10 @@ public class Messages {
         prefix = colorize(config.getString("prefix", "&e[&6Factions&e]&r "));
     }
 
+    public boolean hasList(String path) {
+        return config.isList(path) && !config.getStringList(path).isEmpty();
+    }
+
     public String raw(String path) {
         String value = config.getString(path);
         if (value == null) {
