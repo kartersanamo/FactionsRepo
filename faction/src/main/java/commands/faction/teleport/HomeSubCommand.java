@@ -2,6 +2,7 @@ package commands.faction.teleport;
 
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -10,10 +11,20 @@ public class HomeSubCommand extends FactionSubCommand {
 
     @Subcommand("home")
     public void onHome(Player player) {
-        if (!factionSystem.teleportHome(player)) {
-            msg(player, "home.teleport-failed");
-            return;
+        FactionResult result = factionSystem.teleportHome(player);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "home.teleport");
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case NO_HOME:
+                msg(player, "home.teleport-failed");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
         }
-        msg(player, "home.teleport");
     }
 }

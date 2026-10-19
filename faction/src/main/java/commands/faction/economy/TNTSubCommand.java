@@ -4,6 +4,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -18,15 +19,38 @@ public class TNTSubCommand extends FactionSubCommand {
             msg(player, "tnt.balance", "amount", faction.getTnt());
             return;
         }
-        if (amount == null || amount <= 0) { msg(player, "tnt.usage"); return; }
+        if (amount == null) { msg(player, "tnt.usage"); return; }
         if (action.equalsIgnoreCase("add")) {
-            factionSystem.addTnt(faction, amount);
-            msg(player, "tnt.added", "amount", amount, "total", faction.getTnt());
+            FactionResult result = factionSystem.addTnt(faction, amount);
+            switch (result) {
+                case SUCCESS:
+                    msg(player, "tnt.added", "amount", amount, "total", faction.getTnt());
+                    break;
+                case INVALID_AMOUNT:
+                    msg(player, "tnt.usage");
+                    break;
+                default:
+                    msg(player, "general.could-not");
+                    break;
+            }
             return;
         }
         if (action.equalsIgnoreCase("take")) {
-            if (!factionSystem.removeTnt(faction, amount)) { msg(player, "tnt.not-enough"); return; }
-            msg(player, "tnt.took", "amount", amount, "total", faction.getTnt());
+            FactionResult result = factionSystem.removeTnt(faction, amount);
+            switch (result) {
+                case SUCCESS:
+                    msg(player, "tnt.took", "amount", amount, "total", faction.getTnt());
+                    break;
+                case NOT_ENOUGH:
+                    msg(player, "tnt.not-enough");
+                    break;
+                case INVALID_AMOUNT:
+                    msg(player, "tnt.usage");
+                    break;
+                default:
+                    msg(player, "general.could-not");
+                    break;
+            }
             return;
         }
         msg(player, "tnt.usage");

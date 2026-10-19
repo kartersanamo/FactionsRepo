@@ -3,6 +3,7 @@ package commands.faction.teleport;
 import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -19,10 +20,20 @@ public class WarpSubCommand extends FactionSubCommand {
             msg(player, "warp.list", "list", String.join(", ", warps));
             return;
         }
-        if (!factionSystem.teleportWarp(player, name)) {
-            msg(player, "warp.missing");
-            return;
+        FactionResult result = factionSystem.teleportWarp(player, name);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "warp.teleport", "warp", name);
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case WARP_MISSING:
+                msg(player, "warp.missing");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
         }
-        msg(player, "warp.teleport", "warp", name);
     }
 }

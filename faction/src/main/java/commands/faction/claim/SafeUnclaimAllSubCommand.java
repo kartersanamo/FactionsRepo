@@ -4,6 +4,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -14,8 +15,17 @@ public class SafeUnclaimAllSubCommand extends FactionSubCommand {
     @CommandPermission("factions.admin")
     public void onSafeUnclaimAll(Player player) {
         Faction faction = factionSystem.getFactionByName("Safezone");
-        if (faction == null) { msg(player, "claim.safe-missing"); return; }
-        factionSystem.unclaimAll(faction);
-        msg(player, "claim.safe-unclaim");
+        FactionResult result = factionSystem.unclaimAll(faction);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "claim.safe-unclaim");
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "claim.safe-missing");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }

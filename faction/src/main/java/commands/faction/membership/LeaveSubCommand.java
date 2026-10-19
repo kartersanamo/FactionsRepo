@@ -3,7 +3,7 @@ package commands.faction.membership;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
-import model.FactionPlayer;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -21,16 +21,17 @@ public class LeaveSubCommand extends FactionSubCommand {
             return;
         }
 
-        FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member != null && member.isLeader()) {
-            msg(player, "leave.leader");
-            return;
+        FactionResult result = factionSystem.leaveFaction(player);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "leave.success", "faction", faction.getName());
+                break;
+            case IS_LEADER:
+                msg(player, "leave.leader");
+                break;
+            default:
+                msg(player, "leave.failed");
+                break;
         }
-
-        if (!factionSystem.leaveFaction(player)) {
-            msg(player, "leave.failed");
-            return;
-        }
-        msg(player, "leave.success", "faction", faction.getName());
     }
 }

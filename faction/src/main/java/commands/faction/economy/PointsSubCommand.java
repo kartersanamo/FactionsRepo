@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -15,10 +16,18 @@ public class PointsSubCommand extends FactionSubCommand {
     public void onPoints(Player player, @Optional String factionName, @Optional Integer value) {
         if (value != null) {
             if (!player.hasPermission("factions.admin")) { msg(player, "general.no-permission"); return; }
-            Faction faction = factionSystem.getFactionByName(factionName);
-            if (faction == null) { msg(player, "general.faction-not-found"); return; }
-            factionSystem.setPoints(faction, value);
-            msg(player, "points.set", "faction", factionName, "points", value);
+            FactionResult result = factionSystem.setPoints(factionSystem.getFactionByName(factionName), value);
+            switch (result) {
+                case SUCCESS:
+                    msg(player, "points.set", "faction", factionName, "points", value);
+                    break;
+                case FACTION_NOT_FOUND:
+                    msg(player, "general.faction-not-found");
+                    break;
+                default:
+                    msg(player, "general.could-not");
+                    break;
+            }
             return;
         }
         Faction faction = factionName == null || factionName.isEmpty()

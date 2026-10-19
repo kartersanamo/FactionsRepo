@@ -3,7 +3,7 @@ package commands.faction.economy;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
-import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -13,9 +13,17 @@ public class PowerboostSubCommand extends FactionSubCommand {
     @Subcommand("powerboost")
     @CommandPermission("factions.admin")
     public void onPowerboost(Player player, String factionName, int boost) {
-        Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { msg(player, "general.faction-not-found"); return; }
-        factionSystem.setPowerBoost(faction, boost);
-        msg(player, "power.boost-set", "faction", factionName, "boost", boost);
+        FactionResult result = factionSystem.setPowerBoost(factionSystem.getFactionByName(factionName), boost);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "power.boost-set", "faction", factionName, "boost", boost);
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "general.faction-not-found");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }

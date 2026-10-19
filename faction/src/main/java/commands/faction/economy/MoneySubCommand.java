@@ -4,6 +4,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -18,17 +19,57 @@ public class MoneySubCommand extends FactionSubCommand {
             msg(player, "money.balance", "amount", String.format("%.2f", faction.getMoney()));
             return;
         }
-        if (amount == null || amount <= 0) { msg(player, "money.usage"); return; }
+        if (amount == null) { msg(player, "money.usage"); return; }
         if (action.equalsIgnoreCase("deposit")) {
-            if (!factionSystem.depositMoney(player, amount)) { msg(player, "money.deposit-failed"); return; }
-            msg(player, "money.deposited", "amount", amount);
+            deposit(player, amount);
             return;
         }
         if (action.equalsIgnoreCase("withdraw")) {
-            if (!factionSystem.withdrawMoney(player, amount)) { msg(player, "money.withdraw-failed"); return; }
-            msg(player, "money.withdrew", "amount", amount);
+            withdraw(player, amount);
             return;
         }
         msg(player, "money.usage");
+    }
+
+    private void deposit(Player player, double amount) {
+        FactionResult result = factionSystem.depositMoney(player, amount);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "money.deposited", "amount", amount);
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case INVALID_AMOUNT:
+                msg(player, "money.usage");
+                break;
+            default:
+                msg(player, "money.deposit-failed");
+                break;
+        }
+    }
+
+    private void withdraw(Player player, double amount) {
+        FactionResult result = factionSystem.withdrawMoney(player, amount);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "money.withdrew", "amount", amount);
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case NO_PERMISSION:
+                msg(player, "general.no-permission");
+                break;
+            case INVALID_AMOUNT:
+                msg(player, "money.usage");
+                break;
+            case NOT_ENOUGH:
+                msg(player, "money.withdraw-failed");
+                break;
+            default:
+                msg(player, "money.withdraw-failed");
+                break;
+        }
     }
 }

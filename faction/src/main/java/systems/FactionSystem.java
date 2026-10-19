@@ -219,12 +219,15 @@ public class FactionSystem {
         }
     }
 
-    public Faction createFaction(Player player, String factionName) {
+    public FactionResult createFaction(Player player, String factionName) {
         if (getFaction(player.getUniqueId()) != null) {
-            return null;
+            return FactionResult.ALREADY_IN_FACTION;
         }
-        if (!isValidFactionName(factionName) || doesFactionExist(factionName) || isReserved(factionName)) {
-            return null;
+        if (!isValidFactionName(factionName)) {
+            return FactionResult.INVALID_NAME;
+        }
+        if (doesFactionExist(factionName) || isReserved(factionName)) {
+            return FactionResult.NAME_TAKEN;
         }
 
         FactionPlayer owner = new FactionPlayer(player, FactionRole.LEADER);
@@ -235,49 +238,49 @@ public class FactionSystem {
         playerToFaction.put(player.getUniqueId(), factionId);
         Bukkit.getPluginManager().callEvent(new FactionCreateEvent(faction));
         save();
-        return faction;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean leaveFaction(Player player) {
+    public FactionResult leaveFaction(Player player) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member == null || member.isLeader()) {
-            return false;
+        if (member == null) {
+            return FactionResult.NOT_MEMBER;
+        }
+        if (member.isLeader()) {
+            return FactionResult.IS_LEADER;
         }
 
         faction.removeMember(player.getUniqueId());
         playerToFaction.remove(player.getUniqueId());
         Bukkit.getPluginManager().callEvent(new FactionPlayerLeaveEvent(faction, member));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean disbandFaction(Player player) {
+    public FactionResult disbandFaction(Player player) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
+        }
         Faction faction = getFaction(player.getUniqueId());
-        if (faction == null) {
-            return false;
-        }
-        FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member == null || !member.isLeader()) {
-            return false;
-        }
         if (faction.isPermanent()) {
-            return false;
+            return FactionResult.PERMANENT;
         }
         return disbandFactionInternal(faction);
     }
 
-    public boolean adminDisband(Faction faction) {
+    public FactionResult adminDisband(Faction faction) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         return disbandFactionInternal(faction);
     }
 
-    private boolean disbandFactionInternal(Faction faction) {
+    private FactionResult disbandFactionInternal(Faction faction) {
         for (String claimKey : new HashSet<>(faction.getClaims())) {
             claims.remove(claimKey);
         }
@@ -290,65 +293,47 @@ public class FactionSystem {
         factions.remove(faction.getId());
         Bukkit.getPluginManager().callEvent(new FactionDisbandEvent(faction));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean invitePlayer(Player inviter, Player target) {
+    public FactionResult invitePlayer(Player inviter, Player target) {
+        FactionResult inviteCheck = checkCanInvite(inviter, target);
+        if (inviteCheck != FactionResult.SUCCESS) {
+            return inviteCheck;
+        }
         Faction faction = getFaction(inviter.getUniqueId());
-        if (faction == null) {
-            return false;
-        }
-        FactionPlayer inviterMember = faction.getMember(inviter.getUniqueId());
-        if (inviterMember == null || !inviterMember.getRole().canInvite()) {
-            return false;
-        }
-        if (getFaction(target.getUniqueId()) != null) {
-            return false;
-        }
-        if (faction.getBanned().contains(target.getUniqueId())) {
-            return false;
-        }
 
         clearInviteFromMap(altInvites, target.getUniqueId(), faction.getId());
         invites.computeIfAbsent(target.getUniqueId(), ignored -> new HashSet<>()).add(faction.getId());
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean inviteAlt(Player inviter, Player target) {
+    public FactionResult inviteAlt(Player inviter, Player target) {
+        FactionResult inviteCheck = checkCanInvite(inviter, target);
+        if (inviteCheck != FactionResult.SUCCESS) {
+            return inviteCheck;
+        }
         Faction faction = getFaction(inviter.getUniqueId());
-        if (faction == null) {
-            return false;
-        }
-        FactionPlayer inviterMember = faction.getMember(inviter.getUniqueId());
-        if (inviterMember == null || !inviterMember.getRole().canInvite()) {
-            return false;
-        }
-        if (getFaction(target.getUniqueId()) != null) {
-            return false;
-        }
-        if (faction.getBanned().contains(target.getUniqueId())) {
-            return false;
-        }
 
         clearInviteFromMap(invites, target.getUniqueId(), faction.getId());
         altInvites.computeIfAbsent(target.getUniqueId(), ignored -> new HashSet<>()).add(faction.getId());
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean deleteInvite(Player player, String factionName) {
+    public FactionResult deleteInvite(Player player, String factionName) {
         Faction faction = getFactionByName(factionName);
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         boolean removed = clearInviteFromMap(invites, player.getUniqueId(), faction.getId());
         removed |= clearInviteFromMap(altInvites, player.getUniqueId(), faction.getId());
         if (!removed) {
-            return false;
+            return FactionResult.INVITE_MISSING;
         }
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     public List<String> getInviteFactionNames(Player player) {
@@ -363,22 +348,22 @@ public class FactionSystem {
                 || hasInviteInMap(altInvites, player.getUniqueId(), faction.getId());
     }
 
-    public boolean joinFaction(Player player, String factionName) {
+    public FactionResult joinFaction(Player player, String factionName) {
         if (getFaction(player.getUniqueId()) != null) {
-            return false;
+            return FactionResult.ALREADY_IN_FACTION;
         }
         Faction faction = getFactionByName(factionName);
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         if (faction.getBanned().contains(player.getUniqueId())) {
-            return false;
+            return FactionResult.BANNED;
         }
 
         boolean altInvited = hasInviteInMap(altInvites, player.getUniqueId(), faction.getId());
         boolean invited = hasInviteInMap(invites, player.getUniqueId(), faction.getId());
         if (!faction.isOpen() && !invited && !altInvited) {
-            return false;
+            return FactionResult.NO_INVITE;
         }
 
         FactionRole joinRole = altInvited ? FactionRole.ALT : faction.getDefaultRank();
@@ -389,49 +374,52 @@ public class FactionSystem {
         clearInviteFromMap(altInvites, player.getUniqueId(), faction.getId());
         Bukkit.getPluginManager().callEvent(new FactionPlayerJoinEvent(faction, member));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean kickPlayer(Player kicker, String targetName) {
+    public FactionResult kickPlayer(Player kicker, String targetName) {
         Faction faction = getFaction(kicker.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer kickerMember = faction.getMember(kicker.getUniqueId());
         if (kickerMember == null || !kickerMember.getRole().canKick()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
 
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (target == null || target.isLeader()) {
-            return false;
+        if (target == null) {
+            return FactionResult.NOT_MEMBER;
+        }
+        if (target.isLeader()) {
+            return FactionResult.TARGET_IS_LEADER;
         }
         if (!kickerMember.getRole().isAtLeast(target.getRole())) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
 
         faction.removeMember(target.getUniqueId());
         playerToFaction.remove(target.getUniqueId());
         Bukkit.getPluginManager().callEvent(new FactionPlayerLeaveEvent(faction, target));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean banPlayer(Player actor, String targetName) {
+    public FactionResult banPlayer(Player actor, String targetName) {
         Faction faction = getFaction(actor.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         if (actorMember == null || !actorMember.getRole().canKick()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         FactionPlayer target = faction.getMemberByName(targetName);
         if (target != null) {
-            if (target.isLeader() || !actorMember.getRole().isAtLeast(target.getRole())) {
-                return false;
+            FactionResult kickResult = kickPlayer(actor, targetName);
+            if (kickResult != FactionResult.SUCCESS) {
+                return kickResult;
             }
-            kickPlayer(actor, targetName);
         }
         Player online = Bukkit.getPlayerExact(targetName);
         if (online != null) {
@@ -439,49 +427,52 @@ public class FactionSystem {
         } else if (target != null) {
             faction.getBanned().add(target.getUniqueId());
         } else {
-            return false;
+            return FactionResult.PLAYER_NOT_FOUND;
         }
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean unbanPlayer(Player actor, String targetName) {
+    public FactionResult unbanPlayer(Player actor, String targetName) {
         Faction faction = getFaction(actor.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         if (actorMember == null || !actorMember.getRole().canKick()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         for (UUID bannedId : new HashSet<>(faction.getBanned())) {
             FactionPlayer member = findMemberByUuidAcrossServer(bannedId, targetName);
             if (member != null || matchesOfflineBanName(bannedId, targetName)) {
                 faction.getBanned().remove(bannedId);
                 save();
-                return true;
+                return FactionResult.SUCCESS;
             }
         }
         Player online = Bukkit.getPlayerExact(targetName);
         if (online != null && faction.getBanned().remove(online.getUniqueId())) {
             save();
-            return true;
+            return FactionResult.SUCCESS;
         }
-        return false;
+        return FactionResult.PLAYER_NOT_FOUND;
     }
 
-    public boolean setRelation(Player actor, String otherFactionName, String relationType) {
+    public FactionResult setRelation(Player actor, String otherFactionName, String relationType) {
+        FactionResult leaderCheck = checkLeader(actor);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
+        }
+        if (relationType == null) {
+            return FactionResult.FAILED;
+        }
         Faction faction = getFaction(actor.getUniqueId());
-        if (faction == null || relationType == null) {
-            return false;
-        }
-        FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
-        if (actorMember == null || !actorMember.isLeader()) {
-            return false;
-        }
         Faction other = getFactionByName(otherFactionName);
-        if (other == null || other.getId().equals(faction.getId())) {
-            return false;
+        if (other == null) {
+            return FactionResult.FACTION_NOT_FOUND;
+        }
+        if (other.getId().equals(faction.getId())) {
+            return FactionResult.SELF;
         }
 
         clearRelationsBetween(faction, other);
@@ -496,10 +487,10 @@ public class FactionSystem {
             faction.getTruceIds().add(other.getId());
             other.getTruceIds().add(faction.getId());
         } else if (!"neutral".equals(type)) {
-            return false;
+            return FactionResult.FAILED;
         }
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     /**
@@ -529,204 +520,219 @@ public class FactionSystem {
         return getRelation(viewer, other).getColor();
     }
 
-    public boolean setOpen(Player player, boolean open) {
-        Faction faction = requireLeaderFaction(player);
-        if (faction == null) {
-            return false;
+    public FactionResult setOpen(Player player, boolean open) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        faction.setOpen(open);
+        getFaction(player.getUniqueId()).setOpen(open);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setPeaceful(Player player, boolean peaceful) {
-        Faction faction = requireLeaderFaction(player);
-        if (faction == null) {
-            return false;
+    public FactionResult setPeaceful(Player player, boolean peaceful) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        faction.setPeaceful(peaceful);
+        getFaction(player.getUniqueId()).setPeaceful(peaceful);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setPermanent(Faction faction, boolean permanent) {
+    public FactionResult setPermanent(Faction faction, boolean permanent) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         faction.setPermanent(permanent);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setGrace(Faction faction, boolean grace) {
+    public FactionResult setGrace(Faction faction, boolean grace) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         faction.setGrace(grace);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setDescription(Player player, String description) {
-        Faction faction = getFaction(player.getUniqueId());
-        if (faction == null) {
-            return false;
+    public FactionResult setDescription(Player player, String description) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member == null || !member.isLeader()) {
-            return false;
-        }
-        faction.setDescription(description);
+        getFaction(player.getUniqueId()).setDescription(description);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setRules(Player player, String rules) {
-        Faction faction = getFaction(player.getUniqueId());
-        if (faction == null) {
-            return false;
+    public FactionResult setRules(Player player, String rules) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member == null || !member.isLeader()) {
-            return false;
-        }
-        faction.setRules(rules);
+        getFaction(player.getUniqueId()).setRules(rules);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setTag(Player player, String newName) {
+    public FactionResult setTag(Player player, String newName) {
         return renameFaction(player, newName);
     }
 
-    public boolean renameFaction(Player player, String newName) {
-        Faction faction = requireLeaderFaction(player);
-        if (faction == null) {
-            return false;
+    public FactionResult renameFaction(Player player, String newName) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        if (!isValidFactionName(newName) || doesFactionExist(newName) || isReserved(newName)) {
-            return false;
+        if (!isValidFactionName(newName)) {
+            return FactionResult.INVALID_NAME;
         }
-        faction.setName(newName);
+        if (doesFactionExist(newName) || isReserved(newName)) {
+            return FactionResult.NAME_TAKEN;
+        }
+        getFaction(player.getUniqueId()).setName(newName);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setDefaultRank(Player player, FactionRole rank) {
-        Faction faction = requireLeaderFaction(player);
-        if (faction == null || rank == null || rank == FactionRole.LEADER) {
-            return false;
+    public FactionResult setDefaultRank(Player player, FactionRole rank) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        faction.setDefaultRank(rank);
+        if (rank == null || rank == FactionRole.LEADER) {
+            return FactionResult.INVALID_RANK;
+        }
+        getFaction(player.getUniqueId()).setDefaultRank(rank);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setTitle(Player actor, String targetName, String title) {
+    public FactionResult setTitle(Player actor, String targetName, String title) {
         Faction faction = getFaction(actor.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         if (actorMember == null || !actorMember.getRole().canInvite()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         FactionPlayer target = faction.getMemberByName(targetName);
         if (target == null) {
-            return false;
+            return FactionResult.NOT_MEMBER;
         }
         target.setTitle(title);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean promoteMember(Player actor, String targetName) {
+    public FactionResult promoteMember(Player actor, String targetName) {
         Faction faction = getFaction(actor.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         if (actorMember == null || !actorMember.getRole().canKick()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (target == null || target.isLeader() || target.getRole().isAlt()) {
-            return false;
+        if (target == null) {
+            return FactionResult.NOT_MEMBER;
+        }
+        if (target.isLeader()) {
+            return FactionResult.TARGET_IS_LEADER;
+        }
+        if (target.getRole().isAlt()) {
+            return FactionResult.INVALID_RANK;
         }
         if (!actorMember.getRole().isAtLeast(target.getRole())) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         FactionRole promoted = target.getRole().promote();
         if (promoted == target.getRole()) {
-            return false;
+            return FactionResult.INVALID_RANK;
         }
         if (promoted == FactionRole.LEADER) {
             return transferLeadership(actor, targetName);
         }
         target.setRole(promoted);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setRole(Player actor, String targetName, FactionRole role) {
+    public FactionResult setRole(Player actor, String targetName, FactionRole role) {
         Faction faction = getFaction(actor.getUniqueId());
-        if (faction == null || role == null || role.isAlt()) {
-            return false;
+        if (faction == null) {
+            return FactionResult.NOT_IN_FACTION;
+        }
+        if (role == null || role.isAlt()) {
+            return FactionResult.INVALID_RANK;
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         if (actorMember == null || !actorMember.getRole().canKick()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (target == null || target.getRole().isAlt()) {
-            return false;
+        if (target == null) {
+            return FactionResult.NOT_MEMBER;
+        }
+        if (target.getRole().isAlt()) {
+            return FactionResult.INVALID_RANK;
         }
         if (role == FactionRole.LEADER) {
             return transferLeadership(actor, targetName);
         }
-        if (target.isLeader() || !actorMember.getRole().isAtLeast(target.getRole())) {
-            return false;
+        if (target.isLeader()) {
+            return FactionResult.TARGET_IS_LEADER;
         }
-        if (role.ordinal() < actorMember.getRole().ordinal()) {
-            return false;
+        if (!actorMember.getRole().isAtLeast(target.getRole())
+                || role.ordinal() < actorMember.getRole().ordinal()) {
+            return FactionResult.NO_PERMISSION;
         }
         target.setRole(role);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean transferLeadership(Player actor, String targetName) {
-        Faction faction = getFaction(actor.getUniqueId());
-        if (faction == null) {
-            return false;
+    public FactionResult transferLeadership(Player actor, String targetName) {
+        FactionResult leaderCheck = checkLeader(actor);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
+        Faction faction = getFaction(actor.getUniqueId());
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (actorMember == null || target == null || !actorMember.isLeader() || target.getRole().isAlt()) {
-            return false;
+        if (target == null) {
+            return FactionResult.NOT_MEMBER;
+        }
+        if (target.getRole().isAlt()) {
+            return FactionResult.INVALID_RANK;
         }
         actorMember.setRole(FactionRole.COLEADER);
         target.setRole(FactionRole.LEADER);
         faction.setLeader(target);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean unclaimAll(Player player) {
+    public FactionResult unclaimAll(Player player) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canClaim()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         return unclaimAll(faction);
     }
 
-    public boolean unclaimAll(Faction faction) {
+    public FactionResult unclaimAll(Faction faction) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         for (String claimKey : new HashSet<>(faction.getClaims())) {
             claims.remove(claimKey);
@@ -736,7 +742,7 @@ public class FactionSystem {
             faction.setBaseClaimKey(null);
         }
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     public FactionResult claimChunk(Player player, ChunkClaim claim) {
@@ -762,18 +768,18 @@ public class FactionSystem {
         return FactionResult.SUCCESS;
     }
 
-    public boolean unclaimChunk(Player player, ChunkClaim claim) {
+    public FactionResult unclaimChunk(Player player, ChunkClaim claim) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canClaim()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
-        UUID ownerId = claims.get(claim.toKey());
-        if (ownerId == null || !ownerId.equals(faction.getId())) {
-            return false;
+        FactionResult ownership = checkClaimOwnedBy(faction, claim);
+        if (ownership != FactionResult.SUCCESS) {
+            return ownership;
         }
 
         claims.remove(claim.toKey());
@@ -783,25 +789,25 @@ public class FactionSystem {
         }
         Bukkit.getPluginManager().callEvent(new LandUnclaimEvent(faction, claim));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setBaseClaim(Player player, ChunkClaim claim) {
+    public FactionResult setBaseClaim(Player player, ChunkClaim claim) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canClaim()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
-        UUID ownerId = claims.get(claim.toKey());
-        if (ownerId == null || !ownerId.equals(faction.getId())) {
-            return false;
+        FactionResult ownership = checkClaimOwnedBy(faction, claim);
+        if (ownership != FactionResult.SUCCESS) {
+            return ownership;
         }
         faction.setBaseClaimKey(claim.toKey());
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     public FactionResult setHome(Player player) {
@@ -824,74 +830,86 @@ public class FactionSystem {
         return FactionResult.SUCCESS;
     }
 
-    public boolean deleteHome(Player player) {
-        Faction faction = requireLeaderFaction(player);
-        if (faction == null) {
-            return false;
+    public FactionResult deleteHome(Player player) {
+        FactionResult leaderCheck = checkLeader(player);
+        if (leaderCheck != FactionResult.SUCCESS) {
+            return leaderCheck;
         }
-        faction.setHome(null);
+        getFaction(player.getUniqueId()).setHome(null);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean teleportHome(Player player) {
+    public FactionResult teleportHome(Player player) {
         // TODO: Add teleport delay and check for movement during the delay
         // TODO: Add combat check (after we combat module)
         Faction faction = getFaction(player.getUniqueId());
-        if (faction == null || faction.getHome() == null) {
-            return false;
+        if (faction == null) {
+            return FactionResult.NOT_IN_FACTION;
+        }
+        if (faction.getHome() == null) {
+            return FactionResult.NO_HOME;
         }
         Location location = faction.getHome().toLocation();
         if (location == null) {
-            return false;
+            return FactionResult.NO_HOME;
         }
-        return player.teleport(location);
+        return player.teleport(location) ? FactionResult.SUCCESS : FactionResult.FAILED;
     }
 
-    public boolean setWarp(Player player, String warpName) {
+    public FactionResult setWarp(Player player, String warpName) {
         Faction faction = getFaction(player.getUniqueId());
-        if (faction == null || warpName == null || warpName.isEmpty()) {
-            return false;
+        if (faction == null) {
+            return FactionResult.NOT_IN_FACTION;
+        }
+        if (warpName == null || warpName.isEmpty()) {
+            return FactionResult.INVALID_NAME;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canSetHome()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         faction.getWarps().put(warpName.toLowerCase(), NamedLocation.from(player.getLocation()));
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean deleteWarp(Player player, String warpName) {
+    public FactionResult deleteWarp(Player player, String warpName) {
         Faction faction = getFaction(player.getUniqueId());
-        if (faction == null || warpName == null) {
-            return false;
+        if (faction == null) {
+            return FactionResult.NOT_IN_FACTION;
+        }
+        if (warpName == null) {
+            return FactionResult.INVALID_NAME;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canSetHome()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         if (faction.getWarps().remove(warpName.toLowerCase()) == null) {
-            return false;
+            return FactionResult.WARP_MISSING;
         }
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean teleportWarp(Player player, String warpName) {
+    public FactionResult teleportWarp(Player player, String warpName) {
         Faction faction = getFaction(player.getUniqueId());
-        if (faction == null || warpName == null) {
-            return false;
+        if (faction == null) {
+            return FactionResult.NOT_IN_FACTION;
+        }
+        if (warpName == null) {
+            return FactionResult.INVALID_NAME;
         }
         NamedLocation warp = faction.getWarps().get(warpName.toLowerCase());
         if (warp == null) {
-            return false;
+            return FactionResult.WARP_MISSING;
         }
         Location location = warp.toLocation();
         if (location == null) {
-            return false;
+            return FactionResult.FAILED;
         }
-        return player.teleport(location);
+        return player.teleport(location) ? FactionResult.SUCCESS : FactionResult.FAILED;
     }
 
     public List<String> listWarps(Player player) {
@@ -902,101 +920,116 @@ public class FactionSystem {
         return new ArrayList<>(faction.getWarps().keySet());
     }
 
-    public boolean depositMoney(Player player, double amount) {
+    public FactionResult depositMoney(Player player, double amount) {
         if (amount <= 0) {
-            return false;
+            return FactionResult.INVALID_AMOUNT;
         }
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         faction.setMoney(faction.getMoney() + amount);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean withdrawMoney(Player player, double amount) {
+    public FactionResult withdrawMoney(Player player, double amount) {
         if (amount <= 0) {
-            return false;
+            return FactionResult.INVALID_AMOUNT;
         }
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return false;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canSetHome()) {
-            return false;
+            return FactionResult.NO_PERMISSION;
         }
         if (faction.getMoney() < amount) {
-            return false;
+            return FactionResult.NOT_ENOUGH;
         }
         faction.setMoney(faction.getMoney() - amount);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean addTnt(Faction faction, int amount) {
-        if (faction == null || amount <= 0) {
-            return false;
+    public FactionResult addTnt(Faction faction, int amount) {
+        if (faction == null) {
+            return FactionResult.FACTION_NOT_FOUND;
+        }
+        if (amount <= 0) {
+            return FactionResult.INVALID_AMOUNT;
         }
         faction.setTnt(faction.getTnt() + amount);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean removeTnt(Faction faction, int amount) {
-        if (faction == null || amount <= 0 || faction.getTnt() < amount) {
-            return false;
+    public FactionResult removeTnt(Faction faction, int amount) {
+        if (faction == null) {
+            return FactionResult.FACTION_NOT_FOUND;
+        }
+        if (amount <= 0) {
+            return FactionResult.INVALID_AMOUNT;
+        }
+        if (faction.getTnt() < amount) {
+            return FactionResult.NOT_ENOUGH;
         }
         faction.setTnt(faction.getTnt() - amount);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setPoints(Faction faction, int points) {
+    public FactionResult setPoints(Faction faction, int points) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         faction.setPoints(points);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setPowerBoost(Faction faction, int boost) {
+    public FactionResult setPowerBoost(Faction faction, int boost) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         faction.setPowerBoost(boost);
         faction.recalculatePower();
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean addStrikes(Faction faction, int strikes) {
-        if (faction == null || strikes <= 0) {
-            return false;
+    public FactionResult addStrikes(Faction faction, int strikes) {
+        if (faction == null) {
+            return FactionResult.FACTION_NOT_FOUND;
+        }
+        if (strikes <= 0) {
+            return FactionResult.INVALID_AMOUNT;
         }
         faction.setStrikes(faction.getStrikes() + strikes);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean adminSetStrikes(Faction faction, int strikes) {
-        if (faction == null || strikes < 0) {
-            return false;
+    public FactionResult adminSetStrikes(Faction faction, int strikes) {
+        if (faction == null) {
+            return FactionResult.FACTION_NOT_FOUND;
+        }
+        if (strikes < 0) {
+            return FactionResult.INVALID_AMOUNT;
         }
         faction.setStrikes(strikes);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
-    public boolean setMaxVaults(Faction faction, int maxVaults) {
+    public FactionResult setMaxVaults(Faction faction, int maxVaults) {
         if (faction == null) {
-            return false;
+            return FactionResult.FACTION_NOT_FOUND;
         }
         faction.setMaxVaults(maxVaults);
         save();
-        return true;
+        return FactionResult.SUCCESS;
     }
 
     public Location findWildernessTeleport(Player player) {
@@ -1114,16 +1147,45 @@ public class FactionSystem {
         return Collections.unmodifiableSet(playerInvites);
     }
 
-    private Faction requireLeaderFaction(Player player) {
+    private FactionResult checkLeader(Player player) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
-            return null;
+            return FactionResult.NOT_IN_FACTION;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.isLeader()) {
-            return null;
+            return FactionResult.NOT_LEADER;
         }
-        return faction;
+        return FactionResult.SUCCESS;
+    }
+
+    private FactionResult checkCanInvite(Player inviter, Player target) {
+        Faction faction = getFaction(inviter.getUniqueId());
+        if (faction == null) {
+            return FactionResult.NOT_IN_FACTION;
+        }
+        FactionPlayer inviterMember = faction.getMember(inviter.getUniqueId());
+        if (inviterMember == null || !inviterMember.getRole().canInvite()) {
+            return FactionResult.NO_PERMISSION;
+        }
+        if (getFaction(target.getUniqueId()) != null) {
+            return FactionResult.ALREADY_MEMBER;
+        }
+        if (faction.getBanned().contains(target.getUniqueId())) {
+            return FactionResult.BANNED;
+        }
+        return FactionResult.SUCCESS;
+    }
+
+    private FactionResult checkClaimOwnedBy(Faction faction, ChunkClaim claim) {
+        UUID ownerId = claims.get(claim.toKey());
+        if (ownerId == null) {
+            return FactionResult.NOT_CLAIMED;
+        }
+        if (!ownerId.equals(faction.getId())) {
+            return FactionResult.OTHER_CLAIM;
+        }
+        return FactionResult.SUCCESS;
     }
 
     private void clearRelationsBetween(Faction first, Faction second) {

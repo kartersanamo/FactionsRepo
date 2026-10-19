@@ -4,6 +4,7 @@ import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.ChunkClaim;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -15,27 +16,28 @@ public class UnclaimSubCommand extends FactionSubCommand {
 
     @Subcommand("unclaim")
     public void onUnclaimCommand(Player player) {
-        Faction faction = factionSystem.getFaction(player.getUniqueId());
-        if (faction == null) {
-            msg(player, "general.not-in-faction");
-            return;
-        }
-
         ChunkClaim claim = ChunkClaim.from(player.getLocation());
-        Faction owner = factionSystem.getFactionAt(claim);
-        if (owner == null) {
-            msg(player, "claim.unclaim-none");
-            return;
+        FactionResult result = factionSystem.unclaimChunk(player, claim);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "claim.unclaim-success", "chunk", claim.getX(), "chunkz", claim.getZ());
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case NO_PERMISSION:
+                msg(player, "general.no-permission");
+                break;
+            case NOT_CLAIMED:
+                msg(player, "claim.unclaim-none");
+                break;
+            case OTHER_CLAIM:
+                Faction owner = factionSystem.getFactionAt(claim);
+                msg(player, "claim.unclaim-other", "faction", owner != null ? owner.getName() : "?");
+                break;
+            default:
+                msg(player, "claim.unclaim-failed");
+                break;
         }
-        if (!owner.getId().equals(faction.getId())) {
-            msg(player, "claim.unclaim-other", "faction", owner.getName());
-            return;
-        }
-
-        if (!factionSystem.unclaimChunk(player, claim)) {
-            msg(player, "claim.unclaim-failed");
-            return;
-        }
-        msg(player, "claim.unclaim-success", "chunk", claim.getX(), "chunkz", claim.getZ());
     }
 }

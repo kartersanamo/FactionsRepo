@@ -21,13 +21,17 @@ Main class: `FactionPlugin` (`plugin.yml`).
 
 ## Messaging API
 
-Commands own player messages. The system returns `FactionResult` (or `boolean` for simple cases); subcommands map the result to `messages.yml` keys.
+Commands own player messages. Mutation APIs on `FactionSystem` return `FactionResult`; subcommands map each outcome to a `messages.yml` key. Query helpers (`getFaction`, `hasInvite`, `isValidFactionName`, etc.) stay boolean/`null`.
 
 ```java
 FactionResult result = factionSystem.setHome(player);
 switch (result) {
-    case SUCCESS -> msg(player, "home.set");
-    case NOT_YOUR_CLAIM -> msg(player, "home.not-your-claim");
+    case SUCCESS:
+        msg(player, "home.set");
+        break;
+    case NOT_YOUR_CLAIM:
+        msg(player, "home.not-your-claim");
+        break;
     // ...
 }
 

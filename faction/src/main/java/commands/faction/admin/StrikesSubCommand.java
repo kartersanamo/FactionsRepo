@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.Optional;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -20,7 +21,17 @@ public class StrikesSubCommand extends FactionSubCommand {
             msg(player, "admin.strikes-view", "faction", factionName, "strikes", faction.getStrikes());
             return;
         }
-        factionSystem.adminSetStrikes(faction, value);
-        msg(player, "admin.strikes-set", "faction", factionName, "strikes", value);
+        FactionResult result = factionSystem.adminSetStrikes(faction, value);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "admin.strikes-set", "faction", factionName, "strikes", value);
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "general.faction-not-found");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }

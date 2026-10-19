@@ -3,7 +3,7 @@ package commands.faction.economy;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
-import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -13,9 +13,17 @@ public class SetMaxVaultsSubCommand extends FactionSubCommand {
     @Subcommand("setmaxvaults")
     @CommandPermission("factions.admin")
     public void onSetMaxVaults(Player player, String factionName, int max) {
-        Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) { msg(player, "general.faction-not-found"); return; }
-        factionSystem.setMaxVaults(faction, max);
-        msg(player, "vault.max-set", "faction", factionName, "max", max);
+        FactionResult result = factionSystem.setMaxVaults(factionSystem.getFactionByName(factionName), max);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "vault.max-set", "faction", factionName, "max", max);
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "general.faction-not-found");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }

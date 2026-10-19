@@ -3,6 +3,7 @@ package commands.faction.membership;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -14,30 +15,27 @@ public class JoinSubCommand extends FactionSubCommand {
 
     @Subcommand("join")
     public void onJoinCommand(Player player, String factionName) {
-        if (factionSystem.getFaction(player.getUniqueId()) != null) {
-            msg(player, "general.already-in-faction");
-            return;
-        }
-
         Faction faction = factionSystem.getFactionByName(factionName);
-        if (faction == null) {
-            msg(player, "general.faction-not-found");
-            return;
+        FactionResult result = factionSystem.joinFaction(player, factionName);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "join.success", "faction", faction != null ? faction.getName() : factionName);
+                break;
+            case ALREADY_IN_FACTION:
+                msg(player, "general.already-in-faction");
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "general.faction-not-found");
+                break;
+            case BANNED:
+                msg(player, "join.banned");
+                break;
+            case NO_INVITE:
+                msg(player, "join.no-invite");
+                break;
+            default:
+                msg(player, "join.failed");
+                break;
         }
-        if (faction.getBanned().contains(player.getUniqueId())) {
-            msg(player, "join.banned");
-            return;
-        }
-
-        if (!faction.isOpen() && !factionSystem.hasInvite(player, faction)) {
-            msg(player, "join.no-invite");
-            return;
-        }
-
-        if (!factionSystem.joinFaction(player, factionName)) {
-            msg(player, "join.failed");
-            return;
-        }
-        msg(player, "join.success", "faction", faction.getName());
     }
 }

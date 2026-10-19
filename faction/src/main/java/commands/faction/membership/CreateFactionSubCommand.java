@@ -2,7 +2,7 @@ package commands.faction.membership;
 
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
-import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -14,20 +14,23 @@ public class CreateFactionSubCommand extends FactionSubCommand {
 
     @Subcommand("create")
     public void onCreateCommand(Player player, String factionName) {
-        if (factionSystem.getFaction(player.getUniqueId()) != null) {
-            msg(player, "general.already-in-faction");
-            return;
+        FactionResult result = factionSystem.createFaction(player, factionName);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "create.success", "faction", factionName);
+                break;
+            case ALREADY_IN_FACTION:
+                msg(player, "general.already-in-faction");
+                break;
+            case NAME_TAKEN:
+                msg(player, "create.exists");
+                break;
+            case INVALID_NAME:
+                msg(player, "create.invalid-name");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
         }
-        if (factionSystem.doesFactionExist(factionName)) {
-            msg(player, "create.exists");
-            return;
-        }
-        if (!factionSystem.isValidFactionName(factionName)) {
-            msg(player, "create.invalid-name");
-            return;
-        }
-
-        Faction createdFaction = factionSystem.createFaction(player, factionName);
-        msg(player, "create.success", "faction", createdFaction.getName());
     }
 }

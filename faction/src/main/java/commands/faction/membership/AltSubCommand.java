@@ -4,7 +4,7 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
-import model.FactionPlayer;
+import model.FactionResult;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
@@ -24,12 +24,6 @@ public class AltSubCommand extends FactionSubCommand {
             return;
         }
 
-        FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member == null || !member.getRole().canInvite()) {
-            msg(player, "alt.not-leader");
-            return;
-        }
-
         Player target = Bukkit.getPlayerExact(targetName);
         if (target == null) {
             msg(player, "general.player-not-found");
@@ -39,17 +33,22 @@ public class AltSubCommand extends FactionSubCommand {
             msg(player, "alt.self");
             return;
         }
-        if (factionSystem.getFaction(target.getUniqueId()) != null) {
-            msg(player, "alt.already-member");
-            return;
-        }
 
-        if (!factionSystem.inviteAlt(player, target)) {
-            msg(player, "alt.failed");
-            return;
+        FactionResult result = factionSystem.inviteAlt(player, target);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "alt.success", "player", target.getName(), "faction", faction.getName());
+                msg(target, "alt.notified", "faction", faction.getName());
+                break;
+            case NO_PERMISSION:
+                msg(player, "alt.not-leader");
+                break;
+            case ALREADY_MEMBER:
+                msg(player, "alt.already-member");
+                break;
+            default:
+                msg(player, "alt.failed");
+                break;
         }
-
-        msg(player, "alt.success", "player", target.getName(), "faction", faction.getName());
-        msg(target, "alt.notified", "faction", faction.getName());
     }
 }

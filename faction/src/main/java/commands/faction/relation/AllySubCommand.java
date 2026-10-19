@@ -2,6 +2,7 @@ package commands.faction.relation;
 
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -10,10 +11,23 @@ public class AllySubCommand extends FactionSubCommand {
 
     @Subcommand("ally")
     public void onCommand(Player player, String factionName) {
-        if (!factionSystem.setRelation(player, factionName, "ally")) {
-            msg(player, "relation.failed");
-            return;
+        FactionResult result = factionSystem.setRelation(player, factionName, "ally");
+        switch (result) {
+            case SUCCESS:
+                msg(player, "relation.set", "relation", "ally", "faction", factionName);
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case NOT_LEADER:
+                msg(player, "general.not-leader");
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "general.faction-not-found");
+                break;
+            default:
+                msg(player, "relation.failed");
+                break;
         }
-        msg(player, "relation.set", "relation", "ally", "faction", factionName);
     }
 }

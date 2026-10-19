@@ -164,7 +164,7 @@ claim:
 map:
   header: "&8&l&m-------------&r&8&l<&r &2(%x%,%z%)&r %color%%faction%&r &8&l>&m-------------"
   wilderness: "&2Wilderness"
-  legend-entry: "%color%%symbol%&7: %faction%"
+  legend-entry: "%color%%symbol%&7: %faction% "
 
 home:
   set: "%prefix%&7Faction home set."

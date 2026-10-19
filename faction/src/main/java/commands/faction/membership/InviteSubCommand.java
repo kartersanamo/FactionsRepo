@@ -4,7 +4,7 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
-import model.FactionPlayer;
+import model.FactionResult;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
@@ -24,12 +24,6 @@ public class InviteSubCommand extends FactionSubCommand {
             return;
         }
 
-        FactionPlayer member = faction.getMember(player.getUniqueId());
-        if (member == null || !member.isLeader()) {
-            msg(player, "invite.not-leader");
-            return;
-        }
-
         Player target = Bukkit.getPlayerExact(targetName);
         if (target == null) {
             msg(player, "general.player-not-found");
@@ -39,17 +33,22 @@ public class InviteSubCommand extends FactionSubCommand {
             msg(player, "invite.self");
             return;
         }
-        if (factionSystem.getFaction(target.getUniqueId()) != null) {
-            msg(player, "invite.already-member");
-            return;
-        }
 
-        if (!factionSystem.invitePlayer(player, target)) {
-            msg(player, "invite.failed");
-            return;
+        FactionResult result = factionSystem.invitePlayer(player, target);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "invite.success", "player", target.getName(), "faction", faction.getName());
+                msg(target, "invite.notified", "faction", faction.getName());
+                break;
+            case NO_PERMISSION:
+                msg(player, "invite.not-leader");
+                break;
+            case ALREADY_MEMBER:
+                msg(player, "invite.already-member");
+                break;
+            default:
+                msg(player, "invite.failed");
+                break;
         }
-
-        msg(player, "invite.success", "player", target.getName(), "faction", faction.getName());
-        msg(target, "invite.notified", "faction", faction.getName());
     }
 }

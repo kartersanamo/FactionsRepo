@@ -3,6 +3,7 @@ package commands.faction.relation;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -14,7 +15,17 @@ public class PeacefulSubCommand extends FactionSubCommand {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) { msg(player, "general.not-in-faction"); return; }
         boolean next = !faction.isPeaceful();
-        if (!factionSystem.setPeaceful(player, next)) { msg(player, "relation.peaceful-denied"); return; }
-        msg(player, next ? "relation.peaceful-on" : "relation.peaceful-off");
+        FactionResult result = factionSystem.setPeaceful(player, next);
+        switch (result) {
+            case SUCCESS:
+                msg(player, next ? "relation.peaceful-on" : "relation.peaceful-off");
+                break;
+            case NOT_LEADER:
+                msg(player, "relation.peaceful-denied");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }

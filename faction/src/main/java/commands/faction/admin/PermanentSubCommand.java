@@ -4,6 +4,7 @@ import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
@@ -16,7 +17,17 @@ public class PermanentSubCommand extends FactionSubCommand {
         Faction faction = factionSystem.getFactionByName(factionName);
         if (faction == null) { msg(player, "general.faction-not-found"); return; }
         boolean next = !faction.isPermanent();
-        factionSystem.setPermanent(faction, next);
-        msg(player, "admin.permanent", "faction", factionName, "state", next);
+        FactionResult result = factionSystem.setPermanent(faction, next);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "admin.permanent", "faction", factionName, "state", next);
+                break;
+            case FACTION_NOT_FOUND:
+                msg(player, "general.faction-not-found");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }

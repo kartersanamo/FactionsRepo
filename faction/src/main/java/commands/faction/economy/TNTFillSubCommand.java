@@ -3,6 +3,7 @@ package commands.faction.economy;
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionResult;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
@@ -33,12 +34,19 @@ public class TNTFillSubCommand extends FactionSubCommand {
             msg(player, "tnt.fill-look");
             return;
         }
-        if (!factionSystem.removeTnt(faction, amount)) {
-            msg(player, "tnt.not-enough");
-            return;
+        FactionResult result = factionSystem.removeTnt(faction, amount);
+        switch (result) {
+            case SUCCESS:
+                Dispenser dispenser = (Dispenser) target.getState();
+                dispenser.getInventory().addItem(new ItemStack(Material.TNT, amount));
+                msg(player, "tnt.fill-success", "amount", amount);
+                break;
+            case NOT_ENOUGH:
+                msg(player, "tnt.not-enough");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
         }
-        Dispenser dispenser = (Dispenser) target.getState();
-        dispenser.getInventory().addItem(new ItemStack(Material.TNT, amount));
-        msg(player, "tnt.fill-success", "amount", amount);
     }
 }

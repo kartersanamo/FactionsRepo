@@ -2,6 +2,7 @@ package commands.faction.role;
 
 import co.aikar.commands.annotation.Subcommand;
 import commands.FactionSubCommand;
+import model.FactionResult;
 import model.FactionRole;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
@@ -16,7 +17,23 @@ public class DefaultRankSubCommand extends FactionSubCommand {
         catch (IllegalArgumentException ex) { msg(player, "defaultrank.invalid"); return; }
         if (rank == FactionRole.LEADER) { msg(player, "defaultrank.cannot-leader"); return; }
         if (rank == FactionRole.ALT) { msg(player, "defaultrank.invalid"); return; }
-        if (!factionSystem.setDefaultRank(player, rank)) { msg(player, "defaultrank.not-leader"); return; }
-        msg(player, "defaultrank.success", "rank", rank);
+        FactionResult result = factionSystem.setDefaultRank(player, rank);
+        switch (result) {
+            case SUCCESS:
+                msg(player, "defaultrank.success", "rank", rank);
+                break;
+            case NOT_IN_FACTION:
+                msg(player, "general.not-in-faction");
+                break;
+            case NOT_LEADER:
+                msg(player, "defaultrank.not-leader");
+                break;
+            case INVALID_RANK:
+                msg(player, "defaultrank.invalid");
+                break;
+            default:
+                msg(player, "general.could-not");
+                break;
+        }
     }
 }
