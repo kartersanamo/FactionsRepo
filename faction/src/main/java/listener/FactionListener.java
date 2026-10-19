@@ -51,7 +51,7 @@ public class FactionListener implements Listener {
                 "to_faction", toFaction != null ? (toRelationColor + toFaction.getName()) : "&2Wilderness");
 
         if (toFaction != null) {
-            Title title = new Title(toRelationColor + toFaction.getName(), toFaction.getDescription() == null ? "No description set." : toFaction.getDescription(), 10, 70, 20);
+            Title title = new Title(toRelationColor + toFaction.getName(), toFaction.getDescription() == null || toFaction.getDescription().isEmpty() ? "No description set." : toFaction.getDescription(), 10, 70, 20);
             player.sendTitle(title);
         }
     }
