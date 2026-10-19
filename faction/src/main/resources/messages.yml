@@ -302,8 +302,9 @@ announce:
 
 chat:
   mode: "%prefix%&7Chat mode: &e%mode%"
-  format-faction: "&a[F] &e%faction% &f%player%&7: &f%message%"
-  format-ally: "&d[ALLY] &e%faction% &f%player%&7: &f%message%"
+  format-faction: "&a%rank%%player%:&r %message%"
+  format-ally: "&d%rank%%faction% %player%:&r %message%"
+  format-truce: "&b%rank%%faction% %player%:&r %message%"
   spy: "&8[&cChatSpy&8] &7%player%&8: &f%message%"
 
 scoreboard:

@@ -1112,6 +1112,19 @@ public class FactionSystem {
         }
     }
 
+    public void broadcastToTruces(Faction faction, String path, Object... placeholders) {
+        if (faction == null) {
+            return;
+        }
+        messages.broadcastFaction(faction, path, placeholders);
+        for (UUID truceId : faction.getTruceIds()) {
+            Faction truce = factions.get(truceId);
+            if (truce != null) {
+                messages.broadcastFaction(truce, path, placeholders);
+            }
+        }
+    }
+
     public List<Faction> listFactionsSortedByLand() {
         List<Faction> list = new ArrayList<>(factions.values());
         list.sort(Comparator.comparingInt(Faction::getLand).reversed());

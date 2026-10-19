@@ -112,13 +112,23 @@ public class FactionListener implements Listener {
         }
 
         event.setCancelled(true);
-        Object[] placeholders = {"faction", faction.getName(), "player", player.getName(),
-                "message", event.getMessage()};
+        String rank = "";
+        if (faction.getMember(player.getUniqueId()) != null) {
+            rank = faction.getMember(player.getUniqueId()).getRole().prefix();
+        }
+        Object[] placeholders = {
+                "faction", faction.getName(),
+                "player", player.getName(),
+                "message", event.getMessage(),
+                "rank", rank
+        };
 
         if (mode == FactionChatMode.FACTION) {
             factionSystem.broadcastToFaction(faction, "chat.format-faction", placeholders);
         } else if (mode == FactionChatMode.ALLY) {
             factionSystem.broadcastToAllies(faction, "chat.format-ally", placeholders);
+        } else if (mode == FactionChatMode.TRUCE) {
+            factionSystem.broadcastToTruces(faction, "chat.format-truce", placeholders);
         }
         notifyChatSpies(player, event.getMessage());
     }
