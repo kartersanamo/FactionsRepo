@@ -20,7 +20,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -807,12 +806,23 @@ public class FactionSystem {
     public boolean setHome(Player player) {
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null) {
+            getMessages().send(player, "general-not-in-faction");
             return false;
         }
         FactionPlayer member = faction.getMember(player.getUniqueId());
         if (member == null || !member.getRole().canSetHome()) {
+            getMessages().send(player, "general.no-permission");
             return false;
         }
+        Location location = player.getLocation();
+        ChunkClaim claim = ChunkClaim.from(location);
+        Faction chunkOwner = getFactionAt(claim);
+
+        if (chunkOwner == null || !chunkOwner.getId().equals(faction.getId())) {
+            getMessages().send(player, "home.not-your-claim");
+            return false;
+        }
+
         faction.setHome(NamedLocation.from(player.getLocation()));
         save();
         return true;
@@ -829,6 +839,8 @@ public class FactionSystem {
     }
 
     public boolean teleportHome(Player player) {
+        // TODO: Add teleport delay and check for movement during the delay
+        // TODO: Add combat check (after we combat module)
         Faction faction = getFaction(player.getUniqueId());
         if (faction == null || faction.getHome() == null) {
             return false;

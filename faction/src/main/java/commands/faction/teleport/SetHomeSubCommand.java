@@ -10,10 +10,8 @@ public class SetHomeSubCommand extends FactionSubCommand {
 
     @Subcommand("sethome")
     public void onSetHome(Player player) {
-        if (!factionSystem.setHome(player)) {
-            msg(player, "home.set-failed");
-            return;
+        if (factionSystem.setHome(player)) {
+            msg(player, "home.set");
         }
-        msg(player, "home.set");
     }
 }

@@ -165,11 +165,12 @@ map:
   legend-entry: "%color%%symbol%&7: %faction%"
 
 home:
-  set: "%prefix%&aFaction home set."
-  set-failed: "%prefix%&cCould not set home. Need permission and stand in your land."
-  teleport: "%prefix%&aTeleported home."
+  set: "%prefix%&7Faction home set."
+  set-failed: "%prefix%&cCould not set home."
+  not-your-claim: "%prefix%&cYou can only set the faction home in your own claims."
+  teleport: "%prefix%&7Teleported home."
   teleport-failed: "%prefix%&cNo faction home set."
-  deleted: "%prefix%&aFaction home deleted."
+  deleted: "%prefix%&7Faction home deleted."
   delete-failed: "%prefix%&cCould not delete home."
 
 warp:
