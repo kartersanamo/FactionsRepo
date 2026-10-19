@@ -1,5 +1,6 @@
 # Factions messages — use & for colors.
 # %prefix% is replaced automatically. Placeholders look like %name%.
+# Info/success body text uses &7. Use &a/&c only for toggle words (enabled/disabled, open/closed, etc).
 
 prefix: "&a&lFactions &2»&r "
 
@@ -15,45 +16,45 @@ general:
   wilderness: "Wilderness"
 
 create:
-  success: "%prefix%&aYou created the faction &e%faction%&a!"
+  success: "%prefix%&7You created the faction &e%faction%&7!"
   exists: "%prefix%&cThat tag is already in use."
   invalid-name: "%prefix%&cThat tag is invalid. Use 3-16 letters or numbers."
 
 leave:
-  success: "%prefix%&aYou left &e%faction%&a."
+  success: "%prefix%&7You left &e%faction%&7."
   leader: "%prefix%&cLeaders must use &e/f disband&c or transfer ownership first."
   failed: "%prefix%&cCould not leave the faction."
 
 disband:
-  success: "%prefix%&aYou disbanded &e%faction%&a."
+  success: "%prefix%&7You disbanded &e%faction%&7."
   not-leader: "%prefix%&cOnly the faction leader can disband."
   failed: "%prefix%&cCould not disband the faction."
   permanent: "%prefix%&cThat faction is permanent and cannot be disbanded."
 
 invite:
-  success: "%prefix%&aInvited &e%player% &ato &e%faction%&a."
-  notified: "%prefix%&aYou were invited to &e%faction%&a. Type &e/f join %faction%"
+  success: "%prefix%&7Invited &e%player% &7to &e%faction%&7."
+  notified: "%prefix%&7You were invited to &e%faction%&7. Type &e/f join %faction%"
   not-leader: "%prefix%&cYou cannot invite players."
   self: "%prefix%&cYou cannot invite yourself."
   already-member: "%prefix%&cThat player is already in a faction."
   failed: "%prefix%&cCould not invite that player."
 
 alt:
-  success: "%prefix%&aInvited &e%player% &aas an alt to &e%faction%&a."
-  notified: "%prefix%&aYou were invited as an alt to &e%faction%&a. Type &e/f join %faction%"
+  success: "%prefix%&7Invited &e%player% &7as an alt to &e%faction%&7."
+  notified: "%prefix%&7You were invited as an alt to &e%faction%&7. Type &e/f join %faction%"
   not-leader: "%prefix%&cYou cannot invite alts."
   self: "%prefix%&cYou cannot invite yourself as an alt."
   already-member: "%prefix%&cThat player is already in a faction."
   failed: "%prefix%&cCould not invite that player as an alt."
 
 join:
-  success: "%prefix%&aYou joined &e%faction%&a!"
+  success: "%prefix%&7You joined &e%faction%&7!"
   no-invite: "%prefix%&cYou do not have an invite to that faction."
   banned: "%prefix%&cYou are banned from that faction."
   failed: "%prefix%&cCould not join that faction."
 
 kick:
-  success: "%prefix%&aYou kicked &e%player% &afrom the faction."
+  success: "%prefix%&7You kicked &e%player% &7from the faction."
   notified: "%prefix%&cYou were kicked from &e%faction%&c."
   not-leader: "%prefix%&cYou cannot kick players."
   self: "%prefix%&cYou cannot kick yourself."
@@ -62,12 +63,12 @@ kick:
   failed: "%prefix%&cCould not kick that player."
 
 ban:
-  success: "%prefix%&aBanned &e%player% &afrom the faction."
+  success: "%prefix%&7Banned &e%player% &7from the faction."
   failed: "%prefix%&cCould not ban that player."
 
 open:
-  now-open: "%prefix%&aYour faction is now &eopen&a."
-  now-closed: "%prefix%&aYour faction is now &eclosed&a."
+  now-open: "%prefix%&7Your faction is now &aopen&7."
+  now-closed: "%prefix%&7Your faction is now &cclosed&7."
   not-leader: "%prefix%&cOnly the leader can toggle open."
 
 roster:
@@ -78,30 +79,30 @@ roster:
   offline: "offline"
 
 reserve:
-  success: "%prefix%&aReserved faction tag &e%faction%&a."
+  success: "%prefix%&7Reserved faction tag &e%faction%&7."
   taken: "%prefix%&cThat tag is already taken or reserved."
   invalid: "%prefix%&cInvalid name."
 
 invites:
   none: "%prefix%&7You have no pending invites."
-  list: "%prefix%&aInvites: &e%list%"
-  deleted: "%prefix%&aDeleted invite from &e%faction%&a."
+  list: "%prefix%&7Invites: &e%list%"
+  deleted: "%prefix%&7Deleted invite from &e%faction%&7."
   missing: "%prefix%&cNo invite from that faction."
 
 promote:
-  success: "%prefix%&aPromoted &e%player%&a."
+  success: "%prefix%&7Promoted &e%player%&7."
   failed: "%prefix%&cCould not promote that player."
 
 coleader:
-  success: "%prefix%&e%player% &ais now a coleader."
+  success: "%prefix%&e%player% &7is now a coleader."
   failed: "%prefix%&cCould not set coleader."
 
 mod:
-  success: "%prefix%&e%player% &ais now a mod."
+  success: "%prefix%&e%player% &7is now a mod."
   failed: "%prefix%&cCould not set mod."
 
 owner:
-  success: "%prefix%&aLeadership transferred to &e%player%&a."
+  success: "%prefix%&7Leadership transferred to &e%player%&7."
   failed: "%prefix%&cCould not transfer leadership."
 
 ownerlist:
@@ -109,13 +110,13 @@ ownerlist:
   line: "&7- &f%player% &8(&e%role%&8)"
 
 defaultrank:
-  success: "%prefix%&aDefault rank set to &e%rank%&a."
+  success: "%prefix%&7Default rank set to &e%rank%&7."
   invalid: "%prefix%&cInvalid rank. Use RECRUIT, MEMBER, MOD, or COLEADER."
   cannot-leader: "%prefix%&cDefault rank cannot be LEADER."
   not-leader: "%prefix%&cOnly the leader can set default rank."
 
 title:
-  success: "%prefix%&aSet title for &e%player% &ato &f%title%&a."
+  success: "%prefix%&7Set title for &e%player% &7to &f%title%&7."
   failed: "%prefix%&cCould not set title."
 
 perms:
@@ -126,36 +127,36 @@ perms:
   member: "&eMEMBER&7: basic"
 
 relation:
-  set: "%prefix%&aSet relation &e%relation% &awith &e%faction%&a."
+  set: "%prefix%&7Set relation &e%relation% &7with &e%faction%&7."
   failed: "%prefix%&cCould not set relation."
-  peaceful-on: "%prefix%&aPeaceful mode: &etrue"
-  peaceful-off: "%prefix%&aPeaceful mode: &efalse"
+  peaceful-on: "%prefix%&7Peaceful mode: &atrue"
+  peaceful-off: "%prefix%&7Peaceful mode: &cfalse"
   peaceful-denied: "%prefix%&cOnly the leader can toggle peaceful."
 
 claim:
-  success: "%prefix%&aClaimed land at &e%chunk%x&7, &e%chunkz%&a."
+  success: "%prefix%&7Claimed land at &e%chunk%x&7, &e%chunkz%&7."
   already: "%prefix%&cThis land is already claimed by &e%faction%&c."
   failed: "%prefix%&cCould not claim this land."
-  unclaim-success: "%prefix%&aUnclaimed land at &e%chunk%x&7, &e%chunkz%&a."
+  unclaim-success: "%prefix%&7Unclaimed land at &e%chunk%x&7, &e%chunkz%&7."
   unclaim-none: "%prefix%&cThis land is not claimed."
   unclaim-other: "%prefix%&cThis land belongs to &e%faction%&c."
   unclaim-failed: "%prefix%&cCould not unclaim this land."
-  unclaim-all: "%prefix%&aUnclaimed all faction land."
+  unclaim-all: "%prefix%&7Unclaimed all faction land."
   unclaim-all-failed: "%prefix%&cCould not unclaim all land."
-  autoclaim-on: "%prefix%&aAutoclaim &aenabled&a."
-  autoclaim-off: "%prefix%&aAutoclaim &cdisabled&a."
+  autoclaim-on: "%prefix%&7Autoclaim &aenabled&7."
+  autoclaim-off: "%prefix%&7Autoclaim &cdisabled&7."
   show-header: "%prefix%&6Claims for &e%faction% &7(%amount%):"
   show-none: "%prefix%&7No claims."
   show-line: "&7- &f%world% &e%chunk%x&7, &e%chunkz%"
   show-more: "&8...and more"
-  seechunk: "%prefix%&aSeeChunk &e%state%&a. Chunk &e%chunk%x&7, &e%chunkz% &8(&7%owner%&8)"
-  base-set: "%prefix%&aBase claim set to &e%chunk%x&7, &e%chunkz%&a."
+  seechunk: "%prefix%&7SeeChunk &e%state%&7. Chunk &e%chunk%x&7, &e%chunkz% &8(&7%owner%&8)"
+  base-set: "%prefix%&7Base claim set to &e%chunk%x&7, &e%chunkz%&7."
   base-failed: "%prefix%&cCould not set base claim. Stand in your claimed land."
-  corner: "%prefix%&aTeleported to corner &e%index%&7/&e4&a."
+  corner: "%prefix%&7Teleported to corner &e%index%&7/&e4&7."
   corner-failed: "%prefix%&cCould not find corner."
-  safe-unclaim: "%prefix%&aUnclaimed all Safezone land."
+  safe-unclaim: "%prefix%&7Unclaimed all Safezone land."
   safe-missing: "%prefix%&cSafezone faction not found."
-  warzone-unclaim: "%prefix%&aUnclaimed all Warzone land."
+  warzone-unclaim: "%prefix%&7Unclaimed all Warzone land."
   warzone-missing: "%prefix%&cWarzone faction not found."
   protected: "%prefix%&cYou cannot build here."
 
@@ -174,22 +175,22 @@ home:
   delete-failed: "%prefix%&cCould not delete home."
 
 warp:
-  set: "%prefix%&aWarp &e%warp% &aset."
+  set: "%prefix%&7Warp &e%warp% &7set."
   set-failed: "%prefix%&cCould not set warp."
-  list: "%prefix%&aWarps: &e%list%"
+  list: "%prefix%&7Warps: &e%list%"
   none: "%prefix%&7No warps. Usage: &e/f warp <name>"
-  teleport: "%prefix%&aWarped to &e%warp%&a."
+  teleport: "%prefix%&7Warped to &e%warp%&7."
   missing: "%prefix%&cWarp not found."
 
 teleport:
-  stuck: "%prefix%&aTeleported out of claimed land."
+  stuck: "%prefix%&7Teleported out of claimed land."
   stuck-failed: "%prefix%&cCould not find a safe spot."
-  wild: "%prefix%&aTeleported to wilderness."
+  wild: "%prefix%&7Teleported to wilderness."
   wild-failed: "%prefix%&cCould not find wilderness."
-  fly-on: "%prefix%&aFaction fly &aenabled&a."
-  fly-off: "%prefix%&aFaction fly &cdisabled&a."
+  fly-on: "%prefix%&7Faction fly &aenabled&7."
+  fly-off: "%prefix%&7Faction fly &cdisabled&7."
   fly-denied: "%prefix%&cYou can only fly in your own claims."
-  coords-shared: "%prefix%&aShared coords with your faction."
+  coords-shared: "%prefix%&7Shared coords with your faction."
   coords-broadcast: "%prefix%&e%player% &7coords: &f%x%&7, &f%y%&7, &f%z% &8(&7%world%&8)"
   near-header: "%prefix%&6Nearby players:"
   near-none: "%prefix%&7No players nearby."
@@ -199,41 +200,41 @@ teleport:
   near-ally: " &d(ally)"
 
 money:
-  balance: "%prefix%&aFaction balance: &e$%amount%"
-  deposited: "%prefix%&aDeposited &e$%amount%&a."
-  withdrew: "%prefix%&aWithdrew &e$%amount%&a."
+  balance: "%prefix%&7Faction balance: &e$%amount%"
+  deposited: "%prefix%&7Deposited &e$%amount%&7."
+  withdrew: "%prefix%&7Withdrew &e$%amount%&7."
   deposit-failed: "%prefix%&cDeposit failed."
   withdraw-failed: "%prefix%&cWithdraw failed."
   usage: "%prefix%&cUsage: &e/f money [deposit|withdraw] [amount]"
 
 power:
   info: "%prefix%&e%faction% &7power: &f%power%&7/&f%max% &8(boost &a+%boost%&8, land &e%land%&8)"
-  boost-set: "%prefix%&aSet power boost for &e%faction% &ato &e%boost%&a."
+  boost-set: "%prefix%&7Set power boost for &e%faction% &7to &e%boost%&7."
 
 points:
   info: "%prefix%&e%faction% &7points: &f%points%"
-  set: "%prefix%&aSet points for &e%faction% &ato &e%points%&a."
+  set: "%prefix%&7Set points for &e%faction% &7to &e%points%&7."
 
 tnt:
-  balance: "%prefix%&aFaction TNT bank: &e%amount%"
-  added: "%prefix%&aAdded &e%amount% &aTNT. Bank: &e%total%"
-  took: "%prefix%&aTook &e%amount% &aTNT. Bank: &e%total%"
+  balance: "%prefix%&7Faction TNT bank: &e%amount%"
+  added: "%prefix%&7Added &e%amount% &7TNT. Bank: &e%total%"
+  took: "%prefix%&7Took &e%amount% &7TNT. Bank: &e%total%"
   not-enough: "%prefix%&cNot enough TNT in the bank."
   usage: "%prefix%&cUsage: &e/f tnt [add|take] [amount]"
-  fill-success: "%prefix%&aFilled dispenser with &e%amount% &aTNT."
+  fill-success: "%prefix%&7Filled dispenser with &e%amount% &7TNT."
   fill-look: "%prefix%&cLook at a dispenser."
   fill-invalid: "%prefix%&cAmount must be positive."
 
 vault:
-  opened: "%prefix%&aOpened temporary vault &e#%number% &7(not persisted yet)."
+  opened: "%prefix%&7Opened temporary vault &e#%number% &7(not persisted yet)."
   invalid: "%prefix%&cVault must be between &e1 &cand &e%max%&c."
-  chest-opened: "%prefix%&aOpened temporary faction chest &7(not persisted yet)."
-  view-opened: "%prefix%&aOpened view of &e%faction% &achest &7(empty placeholder)."
-  max-set: "%prefix%&aMax vaults for &e%faction% &aset to &e%max%&a."
+  chest-opened: "%prefix%&7Opened temporary faction chest &7(not persisted yet)."
+  view-opened: "%prefix%&7Opened view of &e%faction% &7chest &7(empty placeholder)."
+  max-set: "%prefix%&7Max vaults for &e%faction% &7set to &e%max%&7."
 
 boosters:
   none: "%prefix%&7No active boosters."
-  given: "%prefix%&aGranted booster '&e%booster%&a' to &e%faction% &7(placeholder)."
+  given: "%prefix%&7Granted booster '&e%booster%&7' to &e%faction% &7(placeholder)."
 
 upgrades:
   header: "%prefix%&6Upgrades for &e%faction%&6:"
@@ -278,31 +279,31 @@ help:
   - "&e/f chat, announce, description, tag, rules, fly, near, stuck, wild"
 
 description:
-  success: "%prefix%&aDescription updated."
+  success: "%prefix%&7Description updated."
   failed: "%prefix%&cCould not set description."
 
 tag:
-  success: "%prefix%&aFaction renamed to &e%faction%&a."
+  success: "%prefix%&7Faction renamed to &e%faction%&7."
   failed: "%prefix%&cCould not rename faction."
 
 rules:
   none: "%prefix%&7No rules set."
-  view: "%prefix%&aRules: &7%rules%"
-  success: "%prefix%&aRules updated."
+  view: "%prefix%&7Rules: &7%rules%"
+  success: "%prefix%&7Rules updated."
   failed: "%prefix%&cCould not set rules."
 
 announce:
   format: "%prefix%&6[Announcement] &e%player%&7: &f%message%"
 
 chat:
-  mode: "%prefix%&aChat mode: &e%mode%"
+  mode: "%prefix%&7Chat mode: &e%mode%"
   format-faction: "&a[F] &e%faction% &f%player%&7: &f%message%"
   format-ally: "&d[ALLY] &e%faction% &f%player%&7: &f%message%"
   spy: "&8[&cChatSpy&8] &7%player%&8: &f%message%"
 
 scoreboard:
-  on: "%prefix%&aFaction scoreboard &aenabled&a &7(sidebar coming later)."
-  off: "%prefix%&aFaction scoreboard &cdisabled&a &7(sidebar coming later)."
+  on: "%prefix%&7Faction scoreboard &aenabled&7 &7(sidebar coming later)."
+  off: "%prefix%&7Faction scoreboard &cdisabled&7 &7(sidebar coming later)."
 
 logins:
   header: "%prefix%&6Online members:"
@@ -319,21 +320,21 @@ status:
   fly: "%prefix%&7Fly: &e%state%"
 
 admin:
-  saved: "%prefix%&aFactions saved."
-  reloaded: "%prefix%&aFactions reloaded from disk."
-  bypass-on: "%prefix%&aYou have enabled admin bypass mode."
-  bypass-off: "%prefix%&aYou have disabled admin bypass mode."
-  chatspy-on: "%prefix%&aChat spy enabled."
-  chatspy-off: "%prefix%&aChat spy disabled."
+  saved: "%prefix%&7Factions saved."
+  reloaded: "%prefix%&7Factions reloaded from disk."
+  bypass-on: "%prefix%&7You have &aenabled &7admin bypass mode."
+  bypass-off: "%prefix%&7You have &cdisabled &7admin bypass mode."
+  chatspy-on: "%prefix%&7Chat spy &aenabled&7."
+  chatspy-off: "%prefix%&7Chat spy &cdisabled&7."
   config: "%prefix%&7Config editing is not wired yet. Use &emessages.yml &7/ &efactions.yml&7."
   debug-factions: "%prefix%&7Factions: &e%amount%"
   debug-yours: "%prefix%&7Your faction: &e%faction%"
   debug-bypass: "%prefix%&7Bypass: &e%state%"
   debug-autoclaim: "%prefix%&7Autoclaim: &e%state%"
-  grace: "%prefix%&aGrace for &e%faction%&a: &e%state%"
-  permanent: "%prefix%&aPermanent for &e%faction%&a: &e%state%"
+  grace: "%prefix%&7Grace for &e%faction%&7: &e%state%"
+  permanent: "%prefix%&7Permanent for &e%faction%&7: &e%state%"
   strikes-view: "%prefix%&e%faction% &7strikes: &f%strikes%"
-  strikes-set: "%prefix%&aSet strikes for &e%faction% &ato &e%strikes%&a."
+  strikes-set: "%prefix%&7Set strikes for &e%faction% &7to &e%strikes%&7."
   version: "%prefix%&7%version%"
 
 misc:
