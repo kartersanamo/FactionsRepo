@@ -77,3 +77,16 @@ Misc: `bundle`
 | `commands.faction.info` | Show, list, top, help, chat, tag, rules, logs |
 | `commands.faction.admin` | Reload, save, config, debug, bypass, strikes, grace |
 | `commands.faction.misc` | Bundle |
+| `systems` | `FactionSystem` facade (public API) delegating to the subsystems below |
+
+`systems` subsystems (each takes a `FactionRegistry`):
+
+| Class | Purpose |
+|-------|---------|
+| `FactionRegistry` | Shared state (factions, claims, invites, reserved names), lookups, persistence, broadcasts |
+| `MembershipService` | Create/leave/disband, invites, join, kick/ban, open, description, rules, rename |
+| `RoleService` | Default rank, titles, promote, set role, transfer leadership |
+| `RelationService` | Ally/enemy/truce relations, peaceful, permanent, grace |
+| `ClaimService` | Claim/unclaim, unclaim all, base claim, `canBuild` |
+| `HomeWarpService` | Home, warps, wild/stuck/corner teleport locations |
+| `EconomyService` | Money, TNT, points, power boost, strikes, max vaults |
