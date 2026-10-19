@@ -1,7 +1,7 @@
 # Factions messages — use & for colors.
 # %prefix% is replaced automatically. Placeholders look like %name%.
 
-prefix: "&e[&6Factions&e]&r "
+prefix: "&a&lFactions &2»&r "
 
 general:
   not-in-faction: "%prefix%&cYou are not a member of any faction."
@@ -152,13 +152,9 @@ claim:
   protected: "%prefix%&cYou cannot build here."
 
 map:
-  header-north: "&6------------- &fN &6-------------"
-  footer-east-west: "&6W &7<--------+--------> &6E"
-  footer-south: "&6------------- &fS &6-------------"
-  legend-you: "&f&l+&r &7You"
-  legend-wilderness: "&7- &7Wilderness"
-  legend-faction: "%color%%symbol% &f%faction%%you%"
-  legend-you-suffix: " &a(you)"
+  header: "&8&l&m-------------&r&8&l<&r &2(%x%,%z%)&r %color%%faction%&r &8&l>&m-------------"
+  wilderness: "&2Wilderness"
+  legend-entry: "%color%%symbol%&7: %faction%"
 
 home:
   set: "%prefix%&aFaction home set."
