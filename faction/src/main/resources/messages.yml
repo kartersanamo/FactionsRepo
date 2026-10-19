@@ -66,6 +66,10 @@ ban:
   success: "%prefix%&7Banned &e%player% &7from the faction."
   failed: "%prefix%&cCould not ban that player."
 
+unban:
+  success: "%prefix%&7Unbanned &e%player% &7from the faction."
+  failed: "%prefix%&cCould not unban that player."
+
 open:
   now-open: "%prefix%&7Your faction is now &aopen&7."
   now-closed: "%prefix%&7Your faction is now &cclosed&7."
@@ -162,7 +166,7 @@ claim:
   protected: "%prefix%&cYou cannot build here."
 
 map:
-  header: "&8&l&m-------------&r&8&l<&r &2(%x%,%z%)&r %color%%faction%&r &8&l>&m-------------"
+  header: "&8&l&m--------------&r&8&l<&r &2(%x%,%z%)&r %color%%faction%&r &8&l>&m--------------"
   wilderness: "&2Wilderness"
   legend-entry: "%color%%symbol%&7: %faction% "
 

@@ -63,16 +63,7 @@ import commands.faction.relation.AllySubCommand;
 import commands.faction.relation.EnemySubCommand;
 import commands.faction.relation.PeacefulSubCommand;
 import commands.faction.relation.TruceSubCommand;
-import commands.faction.role.BanSubCommand;
-import commands.faction.role.ColeaderSubCommand;
-import commands.faction.role.DefaultRankSubCommand;
-import commands.faction.role.KickSubCommand;
-import commands.faction.role.ModSubCommand;
-import commands.faction.role.OwnerListSubCommand;
-import commands.faction.role.OwnerSubCommand;
-import commands.faction.role.PermissionsSubCommand;
-import commands.faction.role.PromoteSubCommand;
-import commands.faction.role.TitleSubCommand;
+import commands.faction.role.*;
 import commands.faction.teleport.CoordsSubCommand;
 import commands.faction.teleport.DeleteHomeSubCommand;
 import commands.faction.teleport.FlySubCommand;
@@ -132,6 +123,7 @@ public class FactionPlugin extends JavaPlugin {
                 new DeleteInviteSubCommand(factionSystem),
                 new KickSubCommand(factionSystem),
                 new BanSubCommand(factionSystem),
+                new UnbanSubCommand(factionSystem),
                 new PromoteSubCommand(factionSystem),
                 new ColeaderSubCommand(factionSystem),
                 new ModSubCommand(factionSystem),
