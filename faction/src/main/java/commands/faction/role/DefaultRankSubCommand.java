@@ -15,6 +15,7 @@ public class DefaultRankSubCommand extends FactionSubCommand {
         try { rank = FactionRole.valueOf(rankName.toUpperCase()); }
         catch (IllegalArgumentException ex) { msg(player, "defaultrank.invalid"); return; }
         if (rank == FactionRole.LEADER) { msg(player, "defaultrank.cannot-leader"); return; }
+        if (rank == FactionRole.ALT) { msg(player, "defaultrank.invalid"); return; }
         if (!factionSystem.setDefaultRank(player, rank)) { msg(player, "defaultrank.not-leader"); return; }
         msg(player, "defaultrank.success", "rank", rank);
     }

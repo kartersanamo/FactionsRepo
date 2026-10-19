@@ -38,6 +38,14 @@ invite:
   already-member: "%prefix%&cThat player is already in a faction."
   failed: "%prefix%&cCould not invite that player."
 
+alt:
+  success: "%prefix%&aInvited &e%player% &aas an alt to &e%faction%&a."
+  notified: "%prefix%&aYou were invited as an alt to &e%faction%&a. Type &e/f join %faction%"
+  not-leader: "%prefix%&cYou cannot invite alts."
+  self: "%prefix%&cYou cannot invite yourself as an alt."
+  already-member: "%prefix%&cThat player is already in a faction."
+  failed: "%prefix%&cCould not invite that player as an alt."
+
 join:
   success: "%prefix%&aYou joined &e%faction%&a!"
   no-invite: "%prefix%&cYou do not have an invite to that faction."
@@ -102,7 +110,7 @@ ownerlist:
 
 defaultrank:
   success: "%prefix%&aDefault rank set to &e%rank%&a."
-  invalid: "%prefix%&cInvalid rank. Use MEMBER, MOD, or COLEADER."
+  invalid: "%prefix%&cInvalid rank. Use RECRUIT, MEMBER, MOD, or COLEADER."
   cannot-leader: "%prefix%&cDefault rank cannot be LEADER."
   not-leader: "%prefix%&cOnly the leader can set default rank."
 
@@ -232,13 +240,21 @@ upgrades:
   powerboost: "&7- Power boost: &a+%boost%"
 
 show:
-  - "%prefix%&6&l--- &e%faction% &6&l---"
-  - "&eDescription: &7%description%"
-  - "&eLeader: &f%leader%"
-  - "&eMembers: &f%members%"
-  - "&eLand / Power: &f%land%&7 / &f%power%&7/&f%maxpower%"
-  - "&eAllies: &d%allies% &8| &eEnemies: &c%enemies%"
-  - "&eOpen: &f%open% &8| &ePeaceful: &f%peaceful%"
+  - "&8&l&m----------------&r&8<&r&a%faction%&r&8>&m&l----------------"
+  - "&2* &aOwner: &f%owner%"
+  - "&2* &aDescription: &f%description%"
+  - "&2* &aLand / Power / Max Power: &f%land% &8/ &f%power% &8/ &f%maxpower%"
+  - "&2* &aShield Status: %shield_status% &8- &f%shield_time%"
+  - "&2* &aFounded: &f%founded%"
+  - "&2* &aAllies: %allies%"
+  - "&2* &aTruces: %truces%"
+  - "&2* &aEnemies: %enemies%"
+  - "&2* &aPoints: &f%points%"
+  - "&2* &aValue: &f%value%"
+  - "&2* &aOnline Members: &8[&f%online%/%total%&8] %online_list%"
+  - "&2* &aOffline Members: &8[&f%offline%/%total%&8] %offline_list%"
+  - "&2* &aAlts: &f%alts%"
+  - "&8&l&m-------------------------------------"
 
 list:
   header: "%prefix%&6Factions:"
@@ -252,7 +268,7 @@ top:
 
 help:
   - "%prefix%&6Faction commands:"
-  - "&e/f create, join, leave, disband, invite, kick, ban"
+  - "&e/f create, join, leave, disband, invite, alt, kick, ban"
   - "&e/f claim, unclaim, map, autoclaim, home, warp"
   - "&e/f show, list, top, roster, ally, enemy, money, tnt, power"
   - "&e/f chat, announce, description, tag, rules, fly, near, stuck, wild"

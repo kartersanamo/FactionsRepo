@@ -15,7 +15,7 @@ public class ListSubCommand extends FactionSubCommand {
         int i = 0;
         for (Faction faction : factionSystem.listFactionsSortedByLand()) {
             msg(player, "list.line", "index", ++i, "faction", faction.getName(), "land", faction.getLand(),
-                    "members", faction.getMembers().size(),
+                    "members", faction.getMainMemberCount(),
                     "open", faction.isOpen() ? messages.raw("list.open-tag") : "");
             if (i >= 20) break;
         }

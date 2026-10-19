@@ -15,8 +15,8 @@ public class LoginsSubCommand extends FactionSubCommand {
         Faction faction = factionSystem.getFaction(player.getUniqueId());
         if (faction == null) { msg(player, "general.not-in-faction"); return; }
         msg(player, "logins.header");
-        for (FactionPlayer member : faction.getMembers()) {
-            if (member.isOnline()) msg(player, "logins.line", "player", member.getName());
+        for (FactionPlayer member : faction.getOnlineMembers()) {
+            msg(player, "logins.line", "player", member.getName());
         }
     }
 }

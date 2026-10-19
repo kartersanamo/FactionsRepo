@@ -29,8 +29,7 @@ public class JoinSubCommand extends FactionSubCommand {
             return;
         }
 
-        boolean invited = factionSystem.getInvites(player.getUniqueId()).contains(faction.getId());
-        if (!faction.isOpen() && !invited) {
+        if (!faction.isOpen() && !factionSystem.hasInvite(player, faction)) {
             msg(player, "join.no-invite");
             return;
         }

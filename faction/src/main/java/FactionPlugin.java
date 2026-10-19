@@ -47,6 +47,7 @@ import commands.faction.info.ShowSubCommand;
 import commands.faction.info.StatusSubCommand;
 import commands.faction.info.TagSubCommand;
 import commands.faction.info.TopSubCommand;
+import commands.faction.membership.AltSubCommand;
 import commands.faction.membership.CreateFactionSubCommand;
 import commands.faction.membership.DeleteInviteSubCommand;
 import commands.faction.membership.DisbandSubCommand;
@@ -122,6 +123,7 @@ public class FactionPlugin extends JavaPlugin {
                 new LeaveSubCommand(factionSystem),
                 new DisbandSubCommand(factionSystem),
                 new InviteSubCommand(factionSystem),
+                new AltSubCommand(factionSystem),
                 new JoinSubCommand(factionSystem),
                 new OpenSubCommand(factionSystem),
                 new RosterSubCommand(factionSystem),

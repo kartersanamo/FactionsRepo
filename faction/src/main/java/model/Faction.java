@@ -1,13 +1,6 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Faction {
     private final UUID id;
@@ -320,11 +313,92 @@ public class Faction {
         recalculatePower();
     }
 
-    public void recalculatePower() {
-        this.maxPower = members.size() * 10 + powerBoost;
-        this.power = Math.min(power, maxPower);
-        if (power < members.size() * 10) {
-            this.power = Math.min(members.size() * 10 + powerBoost, maxPower);
+    public int getMainMemberCount() {
+        int count = 0;
+        for (FactionPlayer member : members) {
+            if (!member.getRole().isAlt()) {
+                count++;
+            }
         }
+        return count;
+    }
+
+    public void recalculatePower() {
+        int mainMembers = getMainMemberCount();
+        this.maxPower = mainMembers * 10 + powerBoost;
+        this.power = Math.min(power, maxPower);
+        if (power < mainMembers * 10) {
+            this.power = Math.min(mainMembers * 10 + powerBoost, maxPower);
+        }
+    }
+
+    /** Grace period acts as a temporary raid shield. */
+    public boolean isShielded() {
+        return grace;
+    }
+
+    public List<FactionPlayer> getMainMembers() {
+        List<FactionPlayer> main = new ArrayList<>();
+        for (FactionPlayer member : members) {
+            if (!member.getRole().isAlt()) {
+                main.add(member);
+            }
+        }
+        return main;
+    }
+
+    public List<FactionPlayer> getAlts() {
+        List<FactionPlayer> alts = new ArrayList<>();
+        for (FactionPlayer member : members) {
+            if (member.getRole().isAlt()) {
+                alts.add(member);
+            }
+        }
+        return alts;
+    }
+
+    public List<FactionPlayer> getOnlineMembers() {
+        List<FactionPlayer> online = new ArrayList<>();
+        for (FactionPlayer member : getMainMembers()) {
+            if (member.isOnline()) {
+                online.add(member);
+            }
+        }
+        return online;
+    }
+
+    public List<FactionPlayer> getOfflineMembers() {
+        List<FactionPlayer> offline = new ArrayList<>();
+        for (FactionPlayer member : getMainMembers()) {
+            if (!member.isOnline()) {
+                offline.add(member);
+            }
+        }
+        return offline;
+    }
+
+    public List<FactionPlayer> getOnlineAlts() {
+        List<FactionPlayer> online = new ArrayList<>();
+        for (FactionPlayer alt : getAlts()) {
+            if (alt.isOnline()) {
+                online.add(alt);
+            }
+        }
+        return online;
+    }
+
+    public List<FactionPlayer> getOfflineAlts() {
+        List<FactionPlayer> offline = new ArrayList<>();
+        for (FactionPlayer alt : getAlts()) {
+            if (!alt.isOnline()) {
+                offline.add(alt);
+            }
+        }
+        return offline;
+    }
+
+    /** Rough faction wealth: land + bank + points + TNT stock. */
+    public int getValue() {
+        return getLand() * 1000 + (int) Math.floor(money) + points * 10 + tnt;
     }
 }

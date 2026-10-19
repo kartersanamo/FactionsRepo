@@ -48,6 +48,7 @@ public class FactionSystem {
     private Map<UUID, UUID> playerToFaction = new HashMap<>();
     private Map<String, UUID> claims = new HashMap<>();
     private Map<UUID, Set<UUID>> invites = new HashMap<>();
+    private Map<UUID, Set<UUID>> altInvites = new HashMap<>();
 
     public FactionSystem(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -70,12 +71,13 @@ public class FactionSystem {
         this.playerToFaction = data.playerToFaction;
         this.claims = data.claims;
         this.invites = data.invites;
+        this.altInvites = data.altInvites;
         logger.info("Loaded " + factions.size() + " factions.");
     }
 
     public void save() {
         try {
-            storage.save(factions, invites);
+            storage.save(factions, invites, altInvites);
         } catch (IOException exception) {
             logger.severe("Failed to save factions: " + exception.getMessage());
         }
@@ -119,6 +121,24 @@ public class FactionSystem {
 
     public Faction getFactionById(UUID factionId) {
         return factions.get(factionId);
+    }
+
+    public String formatFactionNames(Set<UUID> factionIds) {
+        if (factionIds == null || factionIds.isEmpty()) {
+            return "None";
+        }
+        List<String> names = new ArrayList<>();
+        for (UUID factionId : factionIds) {
+            Faction faction = factions.get(factionId);
+            if (faction != null) {
+                names.add(faction.getName());
+            }
+        }
+        if (names.isEmpty()) {
+            return "None";
+        }
+        names.sort(String.CASE_INSENSITIVE_ORDER);
+        return String.join(", ", names);
     }
 
     public Faction getFactionByName(String factionName) {
@@ -287,7 +307,30 @@ public class FactionSystem {
             return false;
         }
 
+        clearInviteFromMap(altInvites, target.getUniqueId(), faction.getId());
         invites.computeIfAbsent(target.getUniqueId(), ignored -> new HashSet<>()).add(faction.getId());
+        save();
+        return true;
+    }
+
+    public boolean inviteAlt(Player inviter, Player target) {
+        Faction faction = getFaction(inviter.getUniqueId());
+        if (faction == null) {
+            return false;
+        }
+        FactionPlayer inviterMember = faction.getMember(inviter.getUniqueId());
+        if (inviterMember == null || !inviterMember.getRole().canInvite()) {
+            return false;
+        }
+        if (getFaction(target.getUniqueId()) != null) {
+            return false;
+        }
+        if (faction.getBanned().contains(target.getUniqueId())) {
+            return false;
+        }
+
+        clearInviteFromMap(invites, target.getUniqueId(), faction.getId());
+        altInvites.computeIfAbsent(target.getUniqueId(), ignored -> new HashSet<>()).add(faction.getId());
         save();
         return true;
     }
@@ -297,30 +340,25 @@ public class FactionSystem {
         if (faction == null) {
             return false;
         }
-        Set<UUID> playerInvites = invites.get(player.getUniqueId());
-        if (playerInvites == null || !playerInvites.remove(faction.getId())) {
+        boolean removed = clearInviteFromMap(invites, player.getUniqueId(), faction.getId());
+        removed |= clearInviteFromMap(altInvites, player.getUniqueId(), faction.getId());
+        if (!removed) {
             return false;
-        }
-        if (playerInvites.isEmpty()) {
-            invites.remove(player.getUniqueId());
         }
         save();
         return true;
     }
 
     public List<String> getInviteFactionNames(Player player) {
-        Set<UUID> playerInvites = invites.get(player.getUniqueId());
-        if (playerInvites == null || playerInvites.isEmpty()) {
-            return Collections.emptyList();
-        }
         List<String> names = new ArrayList<>();
-        for (UUID factionId : playerInvites) {
-            Faction faction = factions.get(factionId);
-            if (faction != null) {
-                names.add(faction.getName());
-            }
-        }
+        appendInviteNames(names, invites.get(player.getUniqueId()), false);
+        appendInviteNames(names, altInvites.get(player.getUniqueId()), true);
         return names;
+    }
+
+    public boolean hasInvite(Player player, Faction faction) {
+        return hasInviteInMap(invites, player.getUniqueId(), faction.getId())
+                || hasInviteInMap(altInvites, player.getUniqueId(), faction.getId());
     }
 
     public boolean joinFaction(Player player, String factionName) {
@@ -335,21 +373,18 @@ public class FactionSystem {
             return false;
         }
 
-        Set<UUID> playerInvites = invites.get(player.getUniqueId());
-        boolean invited = playerInvites != null && playerInvites.contains(faction.getId());
-        if (!faction.isOpen() && !invited) {
+        boolean altInvited = hasInviteInMap(altInvites, player.getUniqueId(), faction.getId());
+        boolean invited = hasInviteInMap(invites, player.getUniqueId(), faction.getId());
+        if (!faction.isOpen() && !invited && !altInvited) {
             return false;
         }
 
-        FactionPlayer member = new FactionPlayer(player, faction.getDefaultRank());
+        FactionRole joinRole = altInvited ? FactionRole.ALT : faction.getDefaultRank();
+        FactionPlayer member = new FactionPlayer(player, joinRole);
         faction.addMember(member);
         playerToFaction.put(player.getUniqueId(), faction.getId());
-        if (playerInvites != null) {
-            playerInvites.remove(faction.getId());
-            if (playerInvites.isEmpty()) {
-                invites.remove(player.getUniqueId());
-            }
-        }
+        clearInviteFromMap(invites, player.getUniqueId(), faction.getId());
+        clearInviteFromMap(altInvites, player.getUniqueId(), faction.getId());
         Bukkit.getPluginManager().callEvent(new FactionPlayerJoinEvent(faction, member));
         save();
         return true;
@@ -586,7 +621,7 @@ public class FactionSystem {
             return false;
         }
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (target == null || target.isLeader()) {
+        if (target == null || target.isLeader() || target.getRole().isAlt()) {
             return false;
         }
         if (!actorMember.getRole().isAtLeast(target.getRole())) {
@@ -606,7 +641,7 @@ public class FactionSystem {
 
     public boolean setRole(Player actor, String targetName, FactionRole role) {
         Faction faction = getFaction(actor.getUniqueId());
-        if (faction == null || role == null) {
+        if (faction == null || role == null || role.isAlt()) {
             return false;
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
@@ -614,7 +649,7 @@ public class FactionSystem {
             return false;
         }
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (target == null) {
+        if (target == null || target.getRole().isAlt()) {
             return false;
         }
         if (role == FactionRole.LEADER) {
@@ -638,7 +673,7 @@ public class FactionSystem {
         }
         FactionPlayer actorMember = faction.getMember(actor.getUniqueId());
         FactionPlayer target = faction.getMemberByName(targetName);
-        if (actorMember == null || target == null || !actorMember.isLeader()) {
+        if (actorMember == null || target == null || !actorMember.isLeader() || target.getRole().isAlt()) {
             return false;
         }
         actorMember.setRole(FactionRole.COLEADER);
@@ -1075,21 +1110,48 @@ public class FactionSystem {
     }
 
     private void clearAllInvitesForFaction(UUID factionId) {
-        for (Set<UUID> factionIds : invites.values()) {
-            factionIds.remove(factionId);
-        }
-        invites.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        clearFactionFromInviteMap(invites, factionId);
+        clearFactionFromInviteMap(altInvites, factionId);
     }
 
     private void clearInvitesToFaction(UUID playerId, UUID factionId) {
-        Set<UUID> playerInvites = invites.get(playerId);
-        if (playerInvites == null) {
+        clearInviteFromMap(invites, playerId, factionId);
+        clearInviteFromMap(altInvites, playerId, factionId);
+    }
+
+    private void appendInviteNames(List<String> names, Set<UUID> factionIds, boolean alt) {
+        if (factionIds == null || factionIds.isEmpty()) {
             return;
         }
-        playerInvites.remove(factionId);
-        if (playerInvites.isEmpty()) {
-            invites.remove(playerId);
+        for (UUID factionId : factionIds) {
+            Faction faction = factions.get(factionId);
+            if (faction != null) {
+                names.add(alt ? faction.getName() + " (alt)" : faction.getName());
+            }
         }
+    }
+
+    private static boolean hasInviteInMap(Map<UUID, Set<UUID>> map, UUID playerId, UUID factionId) {
+        Set<UUID> playerInvites = map.get(playerId);
+        return playerInvites != null && playerInvites.contains(factionId);
+    }
+
+    private static boolean clearInviteFromMap(Map<UUID, Set<UUID>> map, UUID playerId, UUID factionId) {
+        Set<UUID> playerInvites = map.get(playerId);
+        if (playerInvites == null || !playerInvites.remove(factionId)) {
+            return false;
+        }
+        if (playerInvites.isEmpty()) {
+            map.remove(playerId);
+        }
+        return true;
+    }
+
+    private static void clearFactionFromInviteMap(Map<UUID, Set<UUID>> map, UUID factionId) {
+        for (Set<UUID> factionIds : map.values()) {
+            factionIds.remove(factionId);
+        }
+        map.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
     private static Location chunkCenter(ChunkClaim claim, World world) {

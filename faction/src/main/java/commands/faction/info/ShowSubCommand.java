@@ -6,10 +6,17 @@ import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.annotation.Syntax;
 import commands.FactionSubCommand;
 import model.Faction;
+import model.FactionPlayer;
 import org.bukkit.entity.Player;
 import systems.FactionSystem;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShowSubCommand extends FactionSubCommand {
+
+    private static final SimpleDateFormat FOUNDED_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     public ShowSubCommand(FactionSystem factionSystem) {
         super(factionSystem);
@@ -35,18 +42,68 @@ public class ShowSubCommand extends FactionSubCommand {
     }
 
     private void showFaction(Player player, Faction faction) {
+        List<FactionPlayer> online = faction.getOnlineMembers();
+        List<FactionPlayer> offline = faction.getOfflineMembers();
+        int total = faction.getMainMemberCount();
+
         String description = faction.getDescription();
+        if (description == null || description.isEmpty()) {
+            description = "No description set.";
+        }
+
         msg(player, "show",
                 "faction", faction.getName(),
-                "description", description == null || description.isEmpty() ? "None" : description,
-                "leader", faction.getLeader().getName(),
-                "members", faction.getMembers().size(),
+                "description", description,
+                "owner", faction.getLeader() != null ? faction.getLeader().getName() : "Unknown",
                 "land", faction.getLand(),
                 "power", faction.getPower(),
                 "maxpower", faction.getMaxPower(),
-                "allies", faction.getAllyIds().size(),
-                "enemies", faction.getEnemyIds().size(),
-                "open", faction.isOpen(),
-                "peaceful", faction.isPeaceful());
+                "shield_status", faction.isShielded() ? "&aOn" : "&cOff",
+                "shield_time", faction.isShielded() ? "Grace period" : "—",
+                "founded", faction.getCreationDate() != null
+                        ? FOUNDED_FORMAT.format(faction.getCreationDate())
+                        : "Unknown",
+                "allies", coloredList("&d", factionSystem.formatFactionNames(faction.getAllyIds())),
+                "truces", coloredList("&e", factionSystem.formatFactionNames(faction.getTruceIds())),
+                "enemies", coloredList("&c", factionSystem.formatFactionNames(faction.getEnemyIds())),
+                "points", faction.getPoints(),
+                "value", faction.getValue(),
+                "online", online.size(),
+                "offline", offline.size(),
+                "total", total,
+                "online_list", formatMemberList(online),
+                "offline_list", formatMemberList(offline),
+                "alts", formatAltList(faction.getAlts())
+        );
+    }
+
+    private static String coloredList(String color, String names) {
+        if ("None".equals(names)) {
+            return "&7None";
+        }
+        return color + names;
+    }
+
+    private static String formatMemberList(List<FactionPlayer> members) {
+        if (members.isEmpty()) {
+            return "&7None";
+        }
+        List<String> parts = new ArrayList<>();
+        for (FactionPlayer member : members) {
+            parts.add("&f" + member.getRole().prefix() + member.getName());
+        }
+        return String.join("&7, ", parts);
+    }
+
+    private static String formatAltList(List<FactionPlayer> alts) {
+        if (alts.isEmpty()) {
+            return "&7None";
+        }
+        List<String> parts = new ArrayList<>();
+        for (FactionPlayer alt : alts) {
+            String color = alt.isOnline() ? "&a" : "&7";
+            parts.add(color + alt.getName());
+        }
+        return String.join("&7, ", parts);
     }
 }

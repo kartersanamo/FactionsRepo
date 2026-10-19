@@ -35,7 +35,7 @@ Placeholders use `%name%` in YAML. `%prefix%` is always injected.
 
 ## Commands
 
-Membership: `create`, `join`, `leave`, `disband`, `invite`, `invites`, `deinvite`, `open`, `roster`, `reserve`
+Membership: `create`, `join`, `leave`, `disband`, `invite`, `alt`, `invites`, `deinvite`, `open`, `roster`, `reserve`
 
 Roles: `kick`, `ban`, `promote`, `coleader`, `mod`, `owner`, `ownerlist`, `defaultrank`, `title`, `perms`
 

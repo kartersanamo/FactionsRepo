@@ -33,15 +33,16 @@ public class FactionStorage {
         Map<UUID, UUID> playerToFaction = new HashMap<>();
         Map<String, UUID> claims = new HashMap<>();
         Map<UUID, Set<UUID>> invites = new HashMap<>();
+        Map<UUID, Set<UUID>> altInvites = new HashMap<>();
 
         if (!dataFile.exists()) {
-            return new LoadedData(factions, playerToFaction, claims, invites);
+            return new LoadedData(factions, playerToFaction, claims, invites, altInvites);
         }
 
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(dataFile);
         ConfigurationSection factionsSection = yaml.getConfigurationSection("factions");
         if (factionsSection == null) {
-            return new LoadedData(factions, playerToFaction, claims, invites);
+            return new LoadedData(factions, playerToFaction, claims, invites, altInvites);
         }
 
         for (String factionIdText : factionsSection.getKeys(false)) {
@@ -153,12 +154,25 @@ public class FactionStorage {
             }
         }
 
-        return new LoadedData(factions, playerToFaction, claims, invites);
+        ConfigurationSection altInvitesSection = yaml.getConfigurationSection("altInvites");
+        if (altInvitesSection != null) {
+            for (String playerIdText : altInvitesSection.getKeys(false)) {
+                UUID playerId = UUID.fromString(playerIdText);
+                Set<UUID> factionIds = new HashSet<>();
+                for (String factionIdText : altInvitesSection.getStringList(playerIdText)) {
+                    factionIds.add(UUID.fromString(factionIdText));
+                }
+                altInvites.put(playerId, factionIds);
+            }
+        }
+
+        return new LoadedData(factions, playerToFaction, claims, invites, altInvites);
     }
 
     public void save(
             Map<UUID, Faction> factions,
-            Map<UUID, Set<UUID>> invites
+            Map<UUID, Set<UUID>> invites,
+            Map<UUID, Set<UUID>> altInvites
     ) throws IOException {
         YamlConfiguration yaml = new YamlConfiguration();
         ConfigurationSection factionsSection = yaml.createSection("factions");
@@ -212,6 +226,11 @@ public class FactionStorage {
             invitesSection.set(entry.getKey().toString(), writeUuidList(entry.getValue()));
         }
 
+        ConfigurationSection altInvitesSection = yaml.createSection("altInvites");
+        for (Map.Entry<UUID, Set<UUID>> entry : altInvites.entrySet()) {
+            altInvitesSection.set(entry.getKey().toString(), writeUuidList(entry.getValue()));
+        }
+
         if (!dataFile.getParentFile().exists() && !dataFile.getParentFile().mkdirs()) {
             throw new IOException("Could not create data folder: " + dataFile.getParentFile());
         }
@@ -257,17 +276,20 @@ public class FactionStorage {
         public final Map<UUID, UUID> playerToFaction;
         public final Map<String, UUID> claims;
         public final Map<UUID, Set<UUID>> invites;
+        public final Map<UUID, Set<UUID>> altInvites;
 
         public LoadedData(
                 Map<UUID, Faction> factions,
                 Map<UUID, UUID> playerToFaction,
                 Map<String, UUID> claims,
-                Map<UUID, Set<UUID>> invites
+                Map<UUID, Set<UUID>> invites,
+                Map<UUID, Set<UUID>> altInvites
         ) {
             this.factions = factions;
             this.playerToFaction = playerToFaction;
             this.claims = claims;
             this.invites = invites;
+            this.altInvites = altInvites;
         }
     }
 }
