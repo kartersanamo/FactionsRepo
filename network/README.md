@@ -47,6 +47,8 @@ Do not rely on Docker `restart: unless-stopped` after a graceful Minecraft stop.
 - Messages: `plugins/Network/messages.yml`
 - Queue: `plugins/Network/queues.yml`
 - Restart requests: `plugins/Network/restart-requests/`
+- Schedule requests: `plugins/Network/schedule-requests/<server>.request` (duration in the file; used by
+  `scripts/sync-dev.sh`)
 
 On a typical homeserver bind-mount that is:
 

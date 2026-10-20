@@ -28,11 +28,16 @@ public class NetworkPlugin extends Plugin {
         if (!requestDir.exists() && !requestDir.mkdirs()) {
             getLogger().severe("Could not create restart request directory: " + requestDir);
         }
+        File scheduleDir = new File(getDataFolder(), "schedule-requests");
+        if (!scheduleDir.exists() && !scheduleDir.mkdirs()) {
+            getLogger().severe("Could not create schedule request directory: " + scheduleDir);
+        }
 
         rebootManager = new RebootManager(this);
         getProxy().getPluginManager().registerCommand(this, new RebootCommand(this, rebootManager));
         getProxy().getPluginManager().registerListener(this, rebootManager);
         rebootManager.recoverQueues();
+        rebootManager.startSchedulePolling();
         getLogger().info("Network reboot command registered.");
     }
 

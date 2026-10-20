@@ -299,37 +299,18 @@ main() {
   echo "==> Done."
 }
 
-# /rb is a proxy command. Console must name the backend: /rb 1 dev-1
+# /rb is a proxy command. Drop a schedule file the Network plugin polls.
 run_reboot() {
   local server="$1"
   echo "==> Running /rb 1 ${server}..."
   ssh_cmd "${SSH_HOST}" bash -s -- "${server}" <<'EOF'
 server="$1"
-if docker exec proxy sh -c 'command -v mc-send-to-console >/dev/null'; then
-  docker exec proxy mc-send-to-console "rb 1 ${server}"
-  exit 0
-fi
-# itzg/mc-proxy has no mc-send-to-console; write to the Java process stdin.
-java_pid="$(docker exec proxy sh -c '
-  if command -v pgrep >/dev/null 2>&1; then
-    pgrep -n java
-  elif command -v pidof >/dev/null 2>&1; then
-    pidof java | awk "{print \$1}"
-  else
-    for dir in /proc/[0-9]*; do
-      pid="${dir#/proc/}"
-      if tr "\0" " " < "${dir}/cmdline" 2>/dev/null | grep -q java; then
-        echo "${pid}"
-        break
-      fi
-    done
-  fi
-' | head -n1 | tr -d "[:space:]")"
-if [[ -z "${java_pid}" || ! "${java_pid}" =~ ^[0-9]+$ ]]; then
-  echo "Could not find Java process in proxy container." >&2
+if [[ ! "${server}" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]]; then
+  echo "Invalid server name: ${server}" >&2
   exit 1
 fi
-docker exec proxy sh -c "printf '%s\n' 'rb 1 ${server}' > /proc/${java_pid}/fd/0"
+dir="/server/plugins/Network/schedule-requests"
+docker exec -u 0 proxy sh -c "mkdir -p '${dir}' && printf '1\n' > '${dir}/${server}.request'"
 EOF
 }
 

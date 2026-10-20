@@ -18,12 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -136,6 +131,10 @@ public class RebootManager implements Listener {
         cancelTasks(tasks);
         plugin.getLogger().info("Cancelled reboot of " + serverName + " by " + sender.getName());
         broadcast(serverName, plugin.message("cancelled", "%server%", serverName));
+    }
+
+    public void startSchedulePolling() {
+        plugin.getProxy().getScheduler().schedule(plugin, this::pollScheduleRequests, 1, 1, TimeUnit.SECONDS);
     }
 
     public void recoverQueues() {
@@ -428,6 +427,45 @@ public class RebootManager implements Listener {
 
     private boolean isHub(String serverName) {
         return plugin.config().getString("hub-server", "hub").equalsIgnoreCase(serverName);
+    }
+
+    private void pollScheduleRequests() {
+        File dir = new File(plugin.getDataFolder(), "schedule-requests");
+        File[] files = dir.listFiles(File::isFile);
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            String serverName = file.getName();
+            if (serverName.endsWith(".request")) {
+                serverName = serverName.substring(0, serverName.length() - ".request".length());
+            }
+            String raw;
+            try {
+                raw = Files.readString(file.toPath()).trim();
+            } catch (IOException exception) {
+                plugin.getLogger().log(Level.WARNING, "Could not read " + file.getName(), exception);
+                continue;
+            }
+            if (!file.delete()) {
+                plugin.getLogger().warning("Could not delete schedule request " + file.getName());
+                continue;
+            }
+            if (!isRebootable(serverName)) {
+                plugin.getLogger().warning("Ignoring schedule request for " + serverName);
+                continue;
+            }
+            if (raw.isEmpty()) {
+                raw = "1";
+            }
+            try {
+                int seconds = parseDurationSeconds(raw);
+                plugin.getLogger().info("Schedule request for " + serverName + " in " + seconds + "s");
+                schedule(plugin.getProxy().getConsole(), serverName, seconds);
+            } catch (IllegalArgumentException exception) {
+                plugin.getLogger().warning("Invalid duration in " + file.getName() + ": " + raw);
+            }
+        }
     }
 
     private void broadcast(String serverName, String message) {
