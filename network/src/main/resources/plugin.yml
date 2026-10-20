@@ -1,0 +1,5 @@
+name: Network
+version: 1.0.0
+main: com.kartersanamo.network.NetworkPlugin
+author: Karter Sanamo
+description: Proxy reboot command and player return queue.

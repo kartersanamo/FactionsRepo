@@ -1,0 +1,16 @@
+hub-server: hub
+permission: network.reboot
+min-duration-seconds: 1
+max-duration-seconds: 21600
+ready-timeout-seconds: 180
+down-timeout-seconds: 90
+ready-poll-millis: 500
+ready-success-pings: 2
+request-dir: restart-requests
+queue-file: queues.yml
+
+# Bungee server name -> Docker Compose service name.
+# Only these backends may be rebooted.
+allowed-servers:
+  dev-1: dev-1
+  dev-2: dev-2
