@@ -293,9 +293,25 @@ main() {
       i=$((i + 1))
     done
     upload_jars_batch "${remote_dir}" "${jar_paths[@]}"
+    run_reboot "${remote_name}"
   fi
 
   echo "==> Done."
+}
+
+# /rb is a proxy command. Console must name the backend: /rb 1 dev-1
+run_reboot() {
+  local server="$1"
+  echo "==> Running /rb 1 ${server}..."
+  ssh_cmd "${SSH_HOST}" bash -s -- "${server}" <<'EOF'
+server="$1"
+if docker exec proxy sh -c 'command -v mc-send-to-console >/dev/null'; then
+  docker exec proxy mc-send-to-console "rb 1 ${server}"
+else
+  echo "mc-send-to-console not found on proxy container." >&2
+  exit 1
+fi
+EOF
 }
 
 main "$@"

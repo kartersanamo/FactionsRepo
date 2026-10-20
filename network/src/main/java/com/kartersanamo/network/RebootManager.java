@@ -1,5 +1,6 @@
 package com.kartersanamo.network;
 
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -78,18 +79,18 @@ public class RebootManager implements Listener {
         return seconds;
     }
 
-    public void schedule(ProxiedPlayer player, String serverName, int seconds) {
+    public void schedule(CommandSender sender, String serverName, int seconds) {
         if (restarting.contains(serverName)) {
-            send(player, plugin.message("restart-in-progress", "%server%", serverName));
+            send(sender, plugin.message("restart-in-progress", "%server%", serverName));
             return;
         }
         failed.remove(serverName);
         if (scheduled.containsKey(serverName)) {
-            send(player, plugin.message("already-scheduled", "%server%", serverName));
+            send(sender, plugin.message("already-scheduled", "%server%", serverName));
             return;
         }
         if (hubServer() == null) {
-            send(player, plugin.message(
+            send(sender, plugin.message(
                     "hub-missing",
                     "%hub%", plugin.config().getString("hub-server", "hub")));
             return;
@@ -115,25 +116,25 @@ public class RebootManager implements Listener {
                 TimeUnit.SECONDS));
 
         scheduled.put(serverName, tasks);
-        plugin.getLogger().info("Scheduled reboot of " + serverName + " in " + seconds + "s by " + player.getName());
+        plugin.getLogger().info("Scheduled reboot of " + serverName + " in " + seconds + "s by " + sender.getName());
         broadcast(serverName, plugin.message(
                 "scheduled",
                 "%server%", serverName,
                 "%time%", formatDuration(seconds)));
     }
 
-    public void cancel(ProxiedPlayer player, String serverName) {
+    public void cancel(CommandSender sender, String serverName) {
         if (restarting.contains(serverName)) {
-            send(player, plugin.message("too-late-to-cancel", "%server%", serverName));
+            send(sender, plugin.message("too-late-to-cancel", "%server%", serverName));
             return;
         }
         List<ScheduledTask> tasks = scheduled.remove(serverName);
         if (tasks == null) {
-            send(player, plugin.message("nothing-to-cancel", "%server%", serverName));
+            send(sender, plugin.message("nothing-to-cancel", "%server%", serverName));
             return;
         }
         cancelTasks(tasks);
-        plugin.getLogger().info("Cancelled reboot of " + serverName + " by " + player.getName());
+        plugin.getLogger().info("Cancelled reboot of " + serverName + " by " + sender.getName());
         broadcast(serverName, plugin.message("cancelled", "%server%", serverName));
     }
 
@@ -498,8 +499,8 @@ public class RebootManager implements Listener {
         }
     }
 
-    private static void send(ProxiedPlayer player, String message) {
-        player.sendMessage(TextComponent.fromLegacyText(message));
+    private static void send(CommandSender sender, String message) {
+        sender.sendMessage(TextComponent.fromLegacyText(message));
     }
 
     private static String formatDuration(int seconds) {

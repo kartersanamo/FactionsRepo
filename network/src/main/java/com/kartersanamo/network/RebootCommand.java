@@ -2,7 +2,6 @@ package com.kartersanamo.network;
 
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Command;
@@ -24,35 +23,37 @@ public class RebootCommand extends Command {
             send(sender, plugin.message("no-permission"));
             return;
         }
-        if (!(sender instanceof ProxiedPlayer player)) {
-            send(sender, plugin.message("players-only"));
+        String serverName;
+        if (sender instanceof ProxiedPlayer player) {
+            if (args.length != 1) {
+                send(sender, plugin.message("usage"));
+                return;
+            }
+            Server server = player.getServer();
+            if (server == null) {
+                send(sender, plugin.message("unknown-server"));
+                return;
+            }
+            serverName = server.getInfo().getName();
+        } else if (args.length == 2) {
+            serverName = args[1];
+        } else {
+            send(sender, plugin.message("console-usage"));
             return;
         }
-        if (args.length != 1) {
-            send(sender, plugin.message("usage"));
-            return;
-        }
-
-        Server server = player.getServer();
-        if (server == null) {
-            send(sender, plugin.message("unknown-server"));
-            return;
-        }
-        ServerInfo current = server.getInfo();
-        String serverName = current.getName();
         if (!rebootManager.isRebootable(serverName)) {
             send(sender, plugin.message("server-not-allowed"));
             return;
         }
 
         if (args[0].equalsIgnoreCase("cancel")) {
-            rebootManager.cancel(player, serverName);
+            rebootManager.cancel(sender, serverName);
             return;
         }
 
         try {
             int seconds = rebootManager.parseDurationSeconds(args[0]);
-            rebootManager.schedule(player, serverName, seconds);
+            rebootManager.schedule(sender, serverName, seconds);
         } catch (IllegalArgumentException exception) {
             send(sender, plugin.message(
                     "invalid-duration",
