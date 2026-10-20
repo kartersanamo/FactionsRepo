@@ -13,7 +13,7 @@ public class RebootCommand extends Command {
     private final RebootManager rebootManager;
 
     public RebootCommand(NetworkPlugin plugin, RebootManager rebootManager) {
-        super("reboot");
+        super("reboot", null, "rb");
         this.plugin = plugin;
         this.rebootManager = rebootManager;
     }

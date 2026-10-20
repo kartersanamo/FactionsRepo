@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 
 public class RebootManager implements Listener {
 
-    private static final Pattern DURATION = Pattern.compile("^(\\d+)([smh])$", Pattern.CASE_INSENSITIVE);
-
+    private static final Pattern DURATION =
+            Pattern.compile("^(\\d+)([smh])?$", Pattern.CASE_INSENSITIVE);
     private final NetworkPlugin plugin;
     private final Map<String, List<ScheduledTask>> scheduled = new ConcurrentHashMap<>();
     private final Set<String> restarting = ConcurrentHashMap.newKeySet();
@@ -49,6 +49,7 @@ public class RebootManager implements Listener {
         return composeService(serverName) != null;
     }
 
+
     public int parseDurationSeconds(String raw) {
         Matcher matcher = DURATION.matcher(raw.trim());
         if (!matcher.matches()) {
@@ -58,7 +59,8 @@ public class RebootManager implements Listener {
         if (value <= 0) {
             throw new IllegalArgumentException("invalid duration");
         }
-        long multiplier = switch (matcher.group(2).toLowerCase()) {
+        String unit = matcher.group(2);
+        long multiplier = switch (unit == null ? "s" : unit.toLowerCase()) {
             case "s" -> 1L;
             case "m" -> 60L;
             case "h" -> 3600L;
