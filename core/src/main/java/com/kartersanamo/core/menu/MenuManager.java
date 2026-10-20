@@ -1,6 +1,8 @@
 package com.kartersanamo.core.menu;
 
 import com.kartersanamo.core.menu.listeners.InventoryClickListener;
+import com.kartersanamo.core.menu.listeners.InventoryCloseListener;
+import com.kartersanamo.core.menu.listeners.InventoryDragListener;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -12,13 +14,13 @@ public class MenuManager {
 
     private static MenuManager instance;
     private final Plugin plugin;
-    private final Map<String, Menu> guis;
-    private final Map<UUID, Menu> openGuis;
+    private final Map<String, Menu> menus;
+    private final Map<UUID, Menu> openMenus;
 
     public MenuManager(Plugin plugin) {
         this.plugin = plugin;
-        this.guis = new HashMap<>();
-        this.openGuis = new HashMap<>();
+        this.menus = new HashMap<>();
+        this.openMenus = new HashMap<>();
         registerListeners();
     }
 
@@ -37,32 +39,33 @@ public class MenuManager {
         plugin.getServer().getPluginManager().registerEvents(new InventoryDragListener(), plugin);
     }
 
-    public void registerGUI(Menu gui) {
-        if (gui != null) {
-            guis.put(gui.getId(), gui);
+    public void registerMenu(Menu menu) {
+        if (menu != null) {
+            menus.put(menu.getId(), menu);
         }
     }
 
-    public Menu getGUI(String id) {
-        return guis.get(id);
+
+    public Menu getMenu(String id) {
+        return menus.get(id);
     }
 
-    public void registerOpenGUI(Player player, Menu gui) {
-        if (player != null && gui != null) {
-            openGuis.put(player.getUniqueId(), gui);
+    public void registerOpenMenu(Player player, Menu menu) {
+        if (player != null && menu != null) {
+            openMenus.put(player.getUniqueId(), menu);
         }
     }
 
-    public void unregisterOpenGUI(Player player) {
+    public void unregisterOpenMenu(Player player) {
         if (player != null) {
-            openGuis.remove(player.getUniqueId());
+            openMenus.remove(player.getUniqueId());
         }
     }
 
-    public Menu getOpenGUI(Player player) {
+    public Menu getOpenMenu(Player player) {
         if (player == null) {
             return null;
         }
-        return openGuis.get(player.getUniqueId());
+        return openMenus.get(player.getUniqueId());
     }
 }
