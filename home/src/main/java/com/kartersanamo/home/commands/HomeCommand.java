@@ -1,10 +1,7 @@
 package com.kartersanamo.home.commands;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Syntax;
+import co.aikar.commands.annotation.*;
 import com.kartersanamo.home.HomePlugin;
 import com.kartersanamo.home.managers.HomeManager;
 import com.kartersanamo.home.models.Home;
@@ -17,6 +14,11 @@ public class HomeCommand extends BaseCommand {
 
     public HomeCommand(HomeManager homeManager) {
         this.homeManager = homeManager;
+    }
+
+    @Subcommand("version|v")
+    public void onVersion(Player player) {
+        HomePlugin.messages().info(player, "plugin-version", "%version%", HomePlugin.getInstance().getDescription().getVersion());
     }
 
     @Default
