@@ -8,7 +8,7 @@ Core factions plugin: faction entities, players, claims, relations, and `/f` com
 mvn -pl faction -am package
 ```
 
-Install `faction/target/faction-1.0.0.jar`. ACF is shaded from the parent POM (`com.kartersanamo.libs.aikar`).
+Install `faction/target/Faction.jar`. ACF is shaded from the parent POM (`com.kartersanamo.libs.aikar`).
 
 Main class: `com.kartersanamo.faction.FactionPlugin` (`plugin.yml`).
 

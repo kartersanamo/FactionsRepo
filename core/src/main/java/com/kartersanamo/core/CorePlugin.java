@@ -7,20 +7,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 @Getter
 public class CorePlugin extends JavaPlugin {
 
-    public static CorePlugin plugin;
+    @Getter
+    public static CorePlugin instance;
     private MenuManager menuManager;
-
-    public static CorePlugin getInstance() {
-        return plugin;
-    }
-
-    public MenuManager getMenuManager() {
-        return menuManager;
-    }
 
     @Override
     public void onEnable() {
-        plugin = this;
+        instance = this;
         this.menuManager = MenuManager.getInstance(this);
         getLogger().info("CorePlugin has been enabled!");
         // Register commands and events here

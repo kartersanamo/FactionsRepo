@@ -8,7 +8,7 @@ Shared Bukkit library used by other modules: menus, teleport warmup, chat input,
 mvn -pl core -am package
 ```
 
-Install `core/target/core-1.0.0.jar`. Other plugins should depend on this module with `provided` scope and `depend: [Core]` in `plugin.yml`.
+Install `core/target/Core.jar`. Other plugins should depend on this module with `provided` scope and `depend: [Core]` in `plugin.yml`.
 
 Main class: `com.kartersanamo.core.CorePlugin`.
 

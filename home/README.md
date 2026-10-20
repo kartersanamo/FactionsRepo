@@ -8,7 +8,7 @@ Player homes plugin: set/teleport/delete homes, GUIs, and admin management.
 mvn -pl home -am package
 ```
 
-Install `core/target/core-1.0.0.jar` and `home/target/home-1.0.0.jar`. Home depends on Core at runtime (`plugin.yml` `depend: [Core]`).
+Install `core/target/Core.jar` and `home/target/Home.jar`. Home depends on Core at runtime (`plugin.yml` `depend: [Core]`).
 
 Main class: `com.kartersanamo.home.HomePlugin`.
 

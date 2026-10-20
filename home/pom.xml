@@ -25,4 +25,8 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>Home</finalName>
+    </build>
 </project>
