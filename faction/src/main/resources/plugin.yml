@@ -1,4 +1,4 @@
 name: Faction
 version: 1.0-SNAPSHOT
-main: FactionPlugin
+main: com.kartersanamo.faction.FactionPlugin
 author: Karter Sanamo

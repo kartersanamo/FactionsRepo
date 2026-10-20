@@ -21,8 +21,6 @@
         <module>meta</module>
         <module>ops</module>
         <module>core</module>
-        <module>core-runtime</module>
-        <module>core-common</module>
         <module>donor</module>
         <module>armorset</module>
         <module>staritem</module>
@@ -135,6 +133,7 @@
         <module>chat</module>
         <module>logger</module>
         <module>database</module>
+        <module>home</module>
     </modules>
 
     <properties>

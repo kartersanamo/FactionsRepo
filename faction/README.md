@@ -10,7 +10,7 @@ mvn -pl faction -am package
 
 Install `faction/target/faction-1.0-SNAPSHOT.jar`. ACF is shaded from the parent POM (`com.kartersanamo.libs.aikar`).
 
-Main class: `FactionPlugin` (`plugin.yml`).
+Main class: `com.kartersanamo.faction.FactionPlugin` (`plugin.yml`).
 
 ## Runtime
 
@@ -54,7 +54,7 @@ Relation colors (via `FactionSystem.getRelation` / `getRelationColor`): self gre
 
 Claims: `claim`, `unclaim`, `unclaimall`, `autoclaim`, `map`, `showclaims`, `seechunk`, `setbase`, `corner`, `safeunclaimall`, `warzoneunclaimall`
 
-Teleport: `sethome`, `home`, `delhome`, `setwarp`, `warp`, `stuck`, `wild`, `fly`, `near`, `coords`
+Teleport: `sethome`, `Home`, `delhome`, `setwarp`, `warp`, `stuck`, `wild`, `fly`, `near`, `coords`
 
 Economy: `money`, `power`, `powerboost`, `points`, `tnt`, `tntfill`, `vault`, `chest`, `viewchest`, `boosters`, `givebooster`, `upgrades`, `setmaxvaults`
 
@@ -68,16 +68,17 @@ Misc: `bundle`
 
 | Package | Purpose |
 |---------|---------|
-| `commands.faction.membership` | Create, join, leave, invites, roster, open/reserve |
-| `commands.faction.role` | Ranks, promote, kick/ban, permissions, titles |
-| `commands.faction.relation` | Ally, enemy, truce, peaceful |
-| `commands.faction.claim` | Claim/unclaim, map, seechunk, corner |
-| `commands.faction.teleport` | Homes, warps, stuck, wild, fly, coords, near |
-| `commands.faction.economy` | Money, vaults, chest, TNT, power, boosters, upgrades |
-| `commands.faction.info` | Show, list, top, help, chat, tag, rules, logs |
-| `commands.faction.admin` | Reload, save, config, debug, bypass, strikes, grace |
-| `commands.faction.misc` | Bundle |
-| `systems` | `FactionSystem` facade (public API) delegating to the subsystems below |
+| `com.kartersanamo.faction` | Plugin bootstrap (`FactionPlugin`) |
+| `com.kartersanamo.faction.commands.faction.membership` | Create, join, leave, invites, roster, open/reserve |
+| `com.kartersanamo.faction.commands.faction.role` | Ranks, promote, kick/ban, permissions, titles |
+| `com.kartersanamo.faction.commands.faction.relation` | Ally, enemy, truce, peaceful |
+| `com.kartersanamo.faction.commands.faction.claim` | Claim/unclaim, map, seechunk, corner |
+| `com.kartersanamo.faction.commands.faction.teleport` | Homes, warps, stuck, wild, fly, coords, near |
+| `com.kartersanamo.faction.commands.faction.economy` | Money, vaults, chest, TNT, power, boosters, upgrades |
+| `com.kartersanamo.faction.commands.faction.info` | Show, list, top, help, chat, tag, rules, logs |
+| `com.kartersanamo.faction.commands.faction.admin` | Reload, save, config, debug, bypass, strikes, grace |
+| `com.kartersanamo.faction.commands.faction.misc` | Bundle |
+| `com.kartersanamo.faction.systems` | `FactionSystem` facade (public API) delegating to the subsystems below |
 
 `systems` subsystems (each takes a `FactionRegistry`):
 
