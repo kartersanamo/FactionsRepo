@@ -1,0 +1,5 @@
+name: Core
+version: 1.0.0
+main: com.kartersanamo.core.CorePlugin
+author: Karter Sanamo
+description: Shared utilities, menus, config, and messages for Factions plugins.

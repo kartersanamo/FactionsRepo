@@ -1,0 +1,6 @@
+name: Home
+version: 1.0.0
+main: com.kartersanamo.home.HomePlugin
+author: Karter Sanamo
+description: Player homes, teleport, and home GUIs.
+depend: [Core]

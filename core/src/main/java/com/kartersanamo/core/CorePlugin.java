@@ -14,6 +14,10 @@ public class CorePlugin extends JavaPlugin {
         return plugin;
     }
 
+    public MenuManager getMenuManager() {
+        return menuManager;
+    }
+
     @Override
     public void onEnable() {
         plugin = this;

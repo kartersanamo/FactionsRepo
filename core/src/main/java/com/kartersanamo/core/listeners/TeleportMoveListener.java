@@ -1,0 +1,32 @@
+package com.kartersanamo.core.listeners;
+
+import com.kartersanamo.core.managers.TeleportManager;
+import org.bukkit.Location;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
+
+public class TeleportMoveListener implements Listener {
+
+    private final TeleportManager teleportManager;
+
+    public TeleportMoveListener(TeleportManager teleportManager) {
+        this.teleportManager = teleportManager;
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (to == null) {
+            return;
+        }
+        if (from.getBlockX() != to.getBlockX()
+                || from.getBlockY() != to.getBlockY()
+                || from.getBlockZ() != to.getBlockZ()) {
+            if (teleportManager.isPlayerTeleporting(event.getPlayer())) {
+                teleportManager.playerMoved(event.getPlayer());
+            }
+        }
+    }
+}

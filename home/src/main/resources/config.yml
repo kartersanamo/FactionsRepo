@@ -1,0 +1,82 @@
+home:
+  max-number: 10
+  name:
+    min-length: 3
+    max-length: 16
+  default-material: "CHEST"
+
+gui:
+  manage-home:
+    size: 27
+  homes:
+    min-size: 9
+    max-rows: 6
+
+teleport:
+  delay:
+    enabled: false
+    seconds: 3
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+    sound: "NOTE_PLING"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+  complete:
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+
+effects:
+  set-home:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+  delete-home:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+  rename-home:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+  move-home:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+  edit-material:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+  edit-lore:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
+  edit-location:
+    sound: "ORB_PICKUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
+    particle: "NONE"
+    particle-count: 40
+    particle-radius: 1.0
