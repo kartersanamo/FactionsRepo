@@ -134,6 +134,7 @@
         <module>logger</module>
         <module>database</module>
         <module>home</module>
+        <module>hub</module>
     </modules>
 
     <properties>

@@ -1,6 +1,6 @@
 # core
 
-Shared Bukkit library used by other modules: menus, teleport warmup, chat input, and YAML config/messages.
+Shared Bukkit library used by other modules: menus, custom items, teleport warmup, chat input, and YAML config/messages.
 
 ## Build
 
@@ -32,3 +32,61 @@ HomePlugin.config().playEffect(player, "effects.set-home");
 | `PluginMessages` | `messages.yml` with color, placeholders, and `send` / `error` / `info` / `success` / `warning` |
 
 Reload both with `pluginConfig.reload()` and `pluginMessages.reload()`. Player data files can use `new YamlFile(plugin, "homes/" + uuid + ".yml")` without a jar resource.
+
+## Custom items
+
+One class per item. Core loads appearance from config/messages, tags the stack with NBT, and handles clicks. Child
+plugins register items and override `onUse` when they need behavior.
+
+```java
+items =new
+
+CustomItemRegistry(this,pluginConfig, pluginMessages)
+        .
+
+register(new ServerSelector());
+        items.
+
+giveAll(player);
+```
+
+```java
+public final class ServerSelector extends CustomItem {
+    public ServerSelector() {
+        super("server-selector");
+    }
+
+    @Override
+    protected void onUse(Player player) {
+        new ServerSelectorMenu(player).open(player);
+    }
+}
+```
+
+`config.yml` owns material, slot, amount, and glow. `messages.yml` owns name and lore. Paths default to `items.<id>`.
+
+```yaml
+items:
+  server-selector:
+    slot: 4
+    material: COMPASS
+    amount: 1
+    glow: true
+```
+
+```yaml
+items:
+  server-selector:
+    name: "&a&lServer Selector"
+    lore:
+      - "&7Click to choose a server"
+```
+
+| Class                | Purpose                                                              |
+|----------------------|----------------------------------------------------------------------|
+| `ItemIds`            | 1.8 NBT id tag/read/match (`ks_item`)                                |
+| `CustomItem`         | One file per item: `create()`, `matches()`, `give()`, click handling |
+| `CustomItemRegistry` | Register items, wire listeners, `giveAll(player)`                    |
+| `ItemBuilder`        | Appearance builder, including `.glow()`                              |
+
+Do not identify custom items by material or display name. `ItemBuilder` color-codes `&` in names and lore.

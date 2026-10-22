@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ItemBuilder {
@@ -27,7 +26,7 @@ public class ItemBuilder {
 
     public ItemBuilder name(String name) {
         if (meta != null) {
-            meta.setDisplayName(name);
+            meta.setDisplayName(ColorUtil.translate(name));
         }
         return this;
     }
@@ -35,15 +34,21 @@ public class ItemBuilder {
     public ItemBuilder lore(String... lore) {
         if (meta != null) {
             List<String> loreList = new ArrayList<>();
-            Collections.addAll(loreList, lore);
+            for (String line : lore) {
+                loreList.add(ColorUtil.translate(line));
+            }
             meta.setLore(loreList);
         }
         return this;
     }
 
     public ItemBuilder lore(List<String> lore) {
-        if (meta != null) {
-            meta.setLore(lore);
+        if (meta != null && lore != null) {
+            List<String> loreList = new ArrayList<>(lore.size());
+            for (String line : lore) {
+                loreList.add(ColorUtil.translate(line));
+            }
+            meta.setLore(loreList);
         }
         return this;
     }
@@ -53,6 +58,10 @@ public class ItemBuilder {
             meta.addEnchant(enchantment, level, true);
         }
         return this;
+    }
+
+    public ItemBuilder glow() {
+        return enchant(Enchantment.DURABILITY, 1).flag(ItemFlag.HIDE_ENCHANTS);
     }
 
     public ItemBuilder flag(ItemFlag flag) {

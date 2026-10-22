@@ -1,0 +1,6 @@
+name: Hub
+version: 1.0.0
+main: com.kartersanamo.hub.HubPlugin
+author: Karter Sanamo
+description: Hub join items and server selector.
+depend: [ Core ]
