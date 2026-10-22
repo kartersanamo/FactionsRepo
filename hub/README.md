@@ -38,3 +38,6 @@ Appearance comes from config/messages. Override `onUse` in the item class for cl
 | Item            | Id                | Default slot      |
 |-----------------|-------------------|-------------------|
 | Server selector | `server-selector` | 4 (middle hotbar) |
+
+The selector menu sends players to Bungee servers `dev-1` and `dev-2` with `BungeeUtil.connect`. Those names must match
+the proxy config.

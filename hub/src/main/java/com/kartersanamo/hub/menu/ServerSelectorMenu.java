@@ -1,10 +1,10 @@
 package com.kartersanamo.hub.menu;
 
 import com.kartersanamo.core.menu.Menu;
-import com.kartersanamo.core.util.ColorUtil;
+import com.kartersanamo.core.util.BungeeUtil;
 import com.kartersanamo.core.util.ItemBuilder;
+import com.kartersanamo.hub.HubPlugin;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -12,10 +12,7 @@ import org.bukkit.inventory.ItemStack;
 public class ServerSelectorMenu extends Menu {
 
     public ServerSelectorMenu() {
-        super(
-                "server-selector-menu",
-                "Server Selector",
-                9);
+        super("server-selector-menu", "Server Selector", 9);
         build();
     }
 
@@ -30,20 +27,20 @@ public class ServerSelectorMenu extends Menu {
                 .build();
         setItem(0, devServer1);
         setItem(1, devServer2);
-        setClickHandler(0, this::handleClick);
-        setClickHandler(1, this::handleClick);
+        setClickHandler(0, event -> connectPlayer(event, "dev-1"));
+        setClickHandler(1, event -> connectPlayer(event, "dev-2"));
     }
 
-    public void handleClick(InventoryClickEvent event) {
+    private void connectPlayer(InventoryClickEvent event, String server) {
         event.setCancelled(true);
-        HumanEntity clicker = event.getWhoClicked();
-        if (clicker instanceof Player player) {
-            player.closeInventory();
-            player.sendMessage(ColorUtil.translate("&aConnecting to the server..."));
-            // Add the logic to connect the player to the selected server here.
-        } else {
-            clicker.closeInventory();
-            clicker.sendMessage(ColorUtil.translate("&cWho tf are you?"));
+        if (!(event.getWhoClicked() instanceof Player player)) {
+            event.getWhoClicked().closeInventory();
+            return;
+        }
+        player.closeInventory();
+        HubPlugin.messages().send(player, "connecting", "%server%", server);
+        if (!BungeeUtil.connect(player, server)) {
+            HubPlugin.messages().error(player, "connect-failed", "%server%", server);
         }
     }
 }

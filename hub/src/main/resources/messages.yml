@@ -3,6 +3,8 @@ chat-prefix-success: "&2&lHub &8&l|&r "
 chat-prefix-warning: "&2&lHub &8&l|&r "
 
 welcome: "&7Welcome to the server, &f%player%&7!"
+connecting: "&aConnecting to %server%..."
+connect-failed: "Failed to connect to %server%."
 
 items:
   server-selector:

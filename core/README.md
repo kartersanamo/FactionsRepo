@@ -1,6 +1,7 @@
 # core
 
-Shared Bukkit library used by other modules: menus, custom items, teleport warmup, chat input, and YAML config/messages.
+Shared Bukkit library used by other modules: menus, custom items, Bungee connect, teleport warmup, chat input, and YAML
+config/messages.
 
 ## Build
 
@@ -90,3 +91,18 @@ items:
 | `ItemBuilder`        | Appearance builder, including `.glow()`                              |
 
 Do not identify custom items by material or display name. `ItemBuilder` color-codes `&` in names and lore.
+
+## Bungee connect
+
+Core registers the `BungeeCord` outgoing channel on enable. Child plugins send players to a proxy server by Bungee name
+(`dev-1`, `dev-2`, `hub`):
+
+```java
+BungeeUtil.connect(player, "dev-1");
+```
+
+This uses the plugin-messaging `Connect` subchannel. Do not dispatch `/server` or a proxy command from Bukkit.
+
+| Class        | Purpose                                 |
+|--------------|-----------------------------------------|
+| `BungeeUtil` | Register the channel and send `Connect` |
