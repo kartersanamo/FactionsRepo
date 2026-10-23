@@ -15,6 +15,36 @@ public final class ServerSelector extends CustomItem {
     }
 
     @Override
+    public boolean canMoveFromSlot() {
+        return false;
+    }
+
+    @Override
+    public boolean canDrop() {
+        return false;
+    }
+
+    @Override
+    public boolean canDropOnDeath() {
+        return false;
+    }
+
+    @Override
+    public boolean canPickup() {
+        return false;
+    }
+
+    @Override
+    public boolean canCraft() {
+        return false;
+    }
+
+    @Override
+    public boolean canUseOnEntities() {
+        return false;
+    }
+
+    @Override
     protected ItemStack appearance() {
         return new ItemBuilder(Material.COMPASS)
                 .name(ServerBrandingUtil.getPrimaryColor() + "&lServer Selector")

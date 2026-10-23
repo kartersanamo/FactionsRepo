@@ -8,6 +8,7 @@ public interface CustomItems {
 
     static void install(Plugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(new CustomItemListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CustomItemRestrictionListener(), plugin);
     }
 
     static <E extends Enum<E> & CustomItems> void register(Plugin plugin, Class<E> type) {

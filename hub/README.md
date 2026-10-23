@@ -30,7 +30,8 @@ One class per item under `com.kartersanamo.hub.item`, listed on the `HubItems` e
 CustomItems.register(this, HubItems.class);
 ```
 
-Name, lore, and material live on the item class. Pass the slot when giving:
+Name, lore, and material live on the item class. Pass the slot when giving. The selector overrides Core restriction
+flags so it cannot be moved, dropped, picked up, crafted, or used on entities:
 
 ```java
 HubItems.SERVER_SELECTOR.give(player, 4);

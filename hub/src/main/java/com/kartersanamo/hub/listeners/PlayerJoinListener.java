@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class PlayerJoinListener implements Listener {
 
@@ -19,5 +20,10 @@ public class PlayerJoinListener implements Listener {
 
         player.getInventory().clear();
         HubItems.SERVER_SELECTOR.give(player, 4);
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        HubItems.SERVER_SELECTOR.give(event.getPlayer(), 4);
     }
 }

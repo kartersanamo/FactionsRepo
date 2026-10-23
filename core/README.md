@@ -40,8 +40,9 @@ Call-site placeholders are applied first, then `ServerBrandingUtil` values (`%p_
 
 ## Custom items
 
-One class per item for appearance and click behavior. Each plugin exposes those classes through an enum that implements
-`CustomItems`. Core tags stacks with NBT and handles clicks. Slot is chosen when you give the item, not on the class.
+One class per item for appearance, click behavior, and restrictions. Each plugin exposes those classes through an enum
+that implements `CustomItems`. Core tags stacks with NBT, handles clicks, and enforces restriction flags. Slot is chosen
+when you give the item, not on the class.
 
 ```java
 public enum HubItems implements CustomItems {
@@ -62,13 +63,7 @@ public enum HubItems implements CustomItems {
 
 ```java
 CustomItems.register(this,HubItems .class);
-
 HubItems.SERVER_SELECTOR.
-
-give(player, 4);
-
-ServerSelector selector = HubItems.SERVER_SELECTOR.get();
-selector.
 
 give(player, 4);
 ```
@@ -91,20 +86,44 @@ public final class ServerSelector extends CustomItem {
     }
 
     @Override
+    public boolean canMoveFromSlot() {
+        return false;
+    }
+
+    @Override
     protected void onUse(Player player) {
         new ServerSelectorMenu().open(player);
     }
 }
 ```
 
+Restriction flags default to `true`. Override a flag to `false` to cancel that action. Core listens for the matching
+1.8 events (inventory click/drag including number-key swap, drop, death drops, pickup, consume, place, buckets, craft,
+enchant, entity/item-frame/armor-stand/shear, projectiles/bows, and fishing).
+
+| Flag                 | Default | Cancels                                               |
+|----------------------|---------|-------------------------------------------------------|
+| `canMoveFromSlot()`  | true    | Inventory click, drag, hotbar number-key swap         |
+| `canDrop()`          | true    | Q drop and inventory drop clicks                      |
+| `canDropOnDeath()`   | true    | Item appearing in death drops                         |
+| `canPickup()`        | true    | Picking the item up off the ground                    |
+| `canConsume()`       | true    | Eating / drinking                                     |
+| `canPlace()`         | true    | Block place and emptying buckets                      |
+| `canFill()`          | true    | Filling buckets                                       |
+| `canCraft()`         | true    | Using the item in a crafting grid                     |
+| `canEnchant()`       | true    | Enchanting table                                      |
+| `canUseOnEntities()` | true    | Item frames, armor stands, shears, entity right-click |
+| `canLaunch()`        | true    | Bows, pearls, snowballs, eggs, splash potions         |
+| `canFish()`          | true    | Casting a fishing rod                                 |
+
 `give(player)` adds to the first empty slot. `give(player, slot)` places it in that inventory slot.
 
-| Class         | Purpose                                                          |
-|---------------|------------------------------------------------------------------|
-| `NBTUtils`    | 1.8 NBT id tag/read/match (`ks_item`)                            |
-| `CustomItem`  | One file per item: `create()`, `matches()`, `give(player, slot)` |
-| `CustomItems` | Plugin enum contract, `register`, and click handling via Core    |
-| `ItemBuilder` | Appearance builder, including `.glow()`                          |
+| Class         | Purpose                                                       |
+|---------------|---------------------------------------------------------------|
+| `NBTUtils`    | 1.8 NBT id tag/read/match (`ks_item`)                         |
+| `CustomItem`  | One file per item: appearance, `give`, restriction flags      |
+| `CustomItems` | Plugin enum contract, `register`, and click handling via Core |
+| `ItemBuilder` | Appearance builder, including `.glow()`                       |
 
 Do not identify custom items by material or display name. `ItemBuilder` color-codes `&` in names and lore.
 
