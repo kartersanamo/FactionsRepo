@@ -15,11 +15,6 @@ public final class ServerSelector extends CustomItem {
     }
 
     @Override
-    public int slot() {
-        return 4;
-    }
-
-    @Override
     protected ItemStack appearance() {
         return new ItemBuilder(Material.COMPASS)
                 .name(ServerBrandingUtil.getPrimaryColor() + "&lServer Selector")

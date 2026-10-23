@@ -17,26 +17,28 @@ Main class: `com.kartersanamo.hub.HubPlugin`.
 - Config: `plugins/Hub/config.yml`
 - Messages: `plugins/Hub/messages.yml`
 
-On join, Hub clears the inventory and gives every registered custom item. Items are identified with Core NBT ids, not
-material type.
+On join, Hub sends `welcome-messages` with `%player%` and branding placeholders, clears the inventory, and gives
+`HubItems.SERVER_SELECTOR` in slot 4. "terms of service" and "privacy policy" in that message open the URLs from
+`ServerBrandingUtil`. Items are identified with Core NBT ids, not material type.
 
 ## Custom items
 
-One class per item under `com.kartersanamo.hub.item`. Register it in `HubPlugin.onEnable`:
+One class per item under `com.kartersanamo.hub.item`, listed on the `HubItems` enum. Register the enum in
+`HubPlugin.onEnable`:
 
 ```java
-items =new
-
-CustomItemRegistry(this).
-
-register(new ServerSelector());
+CustomItems.register(this, HubItems.class);
 ```
 
-Name, lore, slot, and material live on the item class. Override `onUse` for click behavior.
+Name, lore, and material live on the item class. Pass the slot when giving:
 
-| Item            | Id                | Slot              |
-|-----------------|-------------------|-------------------|
-| Server selector | `server-selector` | 4 (middle hotbar) |
+```java
+HubItems.SERVER_SELECTOR.give(player, 4);
+```
+
+| Item            | Enum                       | Id                |
+|-----------------|----------------------------|-------------------|
+| Server selector | `HubItems.SERVER_SELECTOR` | `server-selector` |
 
 The selector menu sends players to Bungee servers `dev-1` and `dev-2` with `BungeeUtil.connect`. Those names must match
 the proxy config.

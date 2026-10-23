@@ -1,8 +1,11 @@
 package com.kartersanamo.core.config;
 
+import com.kartersanamo.core.util.ChatUtil;
 import com.kartersanamo.core.util.ColorUtil;
 import com.kartersanamo.core.util.PlaceholderUtil;
+import com.kartersanamo.core.util.ServerBrandingUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -45,7 +48,7 @@ public final class PluginMessages {
     }
 
     public String get(String path, String... placeholders) {
-        return ColorUtil.translate(PlaceholderUtil.replace(raw(path), placeholders));
+        return apply(raw(path), placeholders);
     }
 
     public List<String> getList(String path, String... placeholders) {
@@ -61,14 +64,21 @@ public final class PluginMessages {
 
         List<String> formatted = new ArrayList<>(values.size());
         for (String line : values) {
-            formatted.add(ColorUtil.translate(PlaceholderUtil.replace(line, placeholders)));
+            formatted.add(apply(line, placeholders));
         }
         return formatted;
     }
 
     public void send(CommandSender sender, String path, String... placeholders) {
-        if (sender != null) {
-            sender.sendMessage(get(path, placeholders));
+        sendText(sender, get(path, placeholders));
+    }
+
+    public void sendList(CommandSender sender, String path, String... placeholders) {
+        if (sender == null) {
+            return;
+        }
+        for (String line : getList(path, placeholders)) {
+            sendText(sender, line);
         }
     }
 
@@ -99,11 +109,29 @@ public final class PluginMessages {
             return;
         }
         String prefix = ColorUtil.translate(getOr(prefixPath, ""));
-        String body = ColorUtil.translate(color + PlaceholderUtil.replace(raw(path), placeholders));
+        String body = apply(color + raw(path), placeholders);
         if (prefix.isEmpty()) {
-            sender.sendMessage(body);
+            sendText(sender, body);
             return;
         }
-        sender.sendMessage(prefix + " " + body);
+        sendText(sender, prefix + " " + body);
+    }
+
+    private void sendText(CommandSender sender, String text) {
+        if (sender == null) {
+            return;
+        }
+        if (sender instanceof Player player) {
+            ChatUtil.send(player, text);
+            return;
+        }
+        sender.sendMessage(text);
+    }
+
+    private String apply(String template, String... placeholders) {
+        return ColorUtil.translate(PlaceholderUtil.replace(
+                PlaceholderUtil.replace(template, placeholders),
+                ServerBrandingUtil.placeholders()
+        ));
     }
 }

@@ -26,39 +26,59 @@ HomePlugin.messages().info(player, "home-set", "%name%", name);
 HomePlugin.config().playEffect(player, "effects.set-home");
 ```
 
-| Class | Purpose |
-|---------|---------|
-| `YamlFile` | Load/save any YAML in the plugin data folder, copy jar defaults, typed getters |
-| `PluginConfig` | `config.yml` plus `playEffect(player, path)` for sound/particle groups |
-| `PluginMessages` | `messages.yml` with color, placeholders, and `send` / `error` / `info` / `success` / `warning` |
+| Class            | Purpose                                                                                                 |
+|------------------|---------------------------------------------------------------------------------------------------------|
+| `YamlFile`       | Load/save any YAML in the plugin data folder, copy jar defaults, typed getters                          |
+| `PluginConfig`   | `config.yml` plus `playEffect(player, path)` for sound/particle groups                                  |
+| `PluginMessages` | `messages.yml` with color, placeholders, `send` / `sendList` / `error` / `info` / `success` / `warning` |
 
 Reload both with `pluginConfig.reload()` and `pluginMessages.reload()`. Player data files can use `new YamlFile(plugin, "homes/" + uuid + ".yml")` without a jar resource.
 
+Call-site placeholders are applied first, then `ServerBrandingUtil` values (`%p_color%`, `%s_color%`, `%server%`,
+`%website%`, `%discord%`, and the rest). A call-site `%server%` therefore still wins for connect messages. `send` /
+`sendList` make the phrases "terms of service" and "privacy policy" open the branding URLs.
+
 ## Custom items
 
-One class per item. The subclass owns id, slot, name, lore, and the rest of the appearance. Core tags the stack with
-NBT and handles clicks. Child plugins register items and override `onUse` when they need behavior.
+One class per item for appearance and click behavior. Each plugin exposes those classes through an enum that implements
+`CustomItems`. Core tags stacks with NBT and handles clicks. Slot is chosen when you give the item, not on the class.
 
 ```java
-items =new
+public enum HubItems implements CustomItems {
+    SERVER_SELECTOR(new ServerSelector());
 
-CustomItemRegistry(this).
+    private final CustomItem item;
 
-register(new ServerSelector());
-        items.
+    HubItems(CustomItem item) {
+        this.item = item;
+    }
 
-giveAll(player);
+    @Override
+    public CustomItem item() {
+        return item;
+    }
+}
 ```
+
+```java
+CustomItems.register(this,HubItems .class);
+
+HubItems.SERVER_SELECTOR.
+
+give(player, 4);
+
+ServerSelector selector = HubItems.SERVER_SELECTOR.get();
+selector.
+
+give(player, 4);
+```
+
+Adding an item: create the class, add one enum constant, give it where you need it.
 
 ```java
 public final class ServerSelector extends CustomItem {
     public ServerSelector() {
         super("server-selector");
-    }
-
-    @Override
-    public int slot() {
-        return 4;
     }
 
     @Override
@@ -77,14 +97,14 @@ public final class ServerSelector extends CustomItem {
 }
 ```
 
-Override `slot()` to place the item in a hotbar slot. Leave the default (`-1`) to add it to the first empty slot.
+`give(player)` adds to the first empty slot. `give(player, slot)` places it in that inventory slot.
 
-| Class                | Purpose                                                              |
-|----------------------|----------------------------------------------------------------------|
-| `NBTUtils`           | 1.8 NBT id tag/read/match (`ks_item`)                                |
-| `CustomItem`         | One file per item: `create()`, `matches()`, `give()`, click handling |
-| `CustomItemRegistry` | Register items, wire listeners, `giveAll(player)`                    |
-| `ItemBuilder`        | Appearance builder, including `.glow()`                              |
+| Class         | Purpose                                                          |
+|---------------|------------------------------------------------------------------|
+| `NBTUtils`    | 1.8 NBT id tag/read/match (`ks_item`)                            |
+| `CustomItem`  | One file per item: `create()`, `matches()`, `give(player, slot)` |
+| `CustomItems` | Plugin enum contract, `register`, and click handling via Core    |
+| `ItemBuilder` | Appearance builder, including `.glow()`                          |
 
 Do not identify custom items by material or display name. `ItemBuilder` color-codes `&` in names and lore.
 

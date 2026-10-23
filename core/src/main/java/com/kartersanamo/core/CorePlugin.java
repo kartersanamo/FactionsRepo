@@ -1,5 +1,6 @@
 package com.kartersanamo.core;
 
+import com.kartersanamo.core.item.CustomItems;
 import com.kartersanamo.core.menu.MenuManager;
 import com.kartersanamo.core.util.BungeeUtil;
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class CorePlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.menuManager = MenuManager.getInstance(this);
+        CustomItems.install(this);
         BungeeUtil.register(this);
         getLogger().info("CorePlugin has been enabled!");
     }

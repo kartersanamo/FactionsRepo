@@ -1,27 +1,22 @@
 package com.kartersanamo.core.item;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-public abstract class CustomItem implements Listener {
+public abstract class CustomItem {
 
     private final String id;
 
     protected CustomItem(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("Custom item id cannot be empty");
+        }
         this.id = id;
     }
 
     public final String id() {
         return id;
-    }
-
-    public int slot() {
-        return -1;
     }
 
     public ItemStack create() {
@@ -33,17 +28,20 @@ public abstract class CustomItem implements Listener {
     }
 
     public void give(Player player) {
+        give(player, -1);
+    }
+
+    public void give(Player player, int slot) {
         if (player == null) {
             return;
         }
-        ItemStack item = create();
+        ItemStack stack = create();
         PlayerInventory inventory = player.getInventory();
-        int slot = slot();
         if (slot >= 0 && slot < inventory.getSize()) {
-            inventory.setItem(slot, item);
+            inventory.setItem(slot, stack);
             return;
         }
-        inventory.addItem(item);
+        inventory.addItem(stack);
     }
 
     protected abstract ItemStack appearance();
@@ -51,15 +49,7 @@ public abstract class CustomItem implements Listener {
     protected void onUse(Player player) {
     }
 
-    @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
-        if (event.getAction() == Action.PHYSICAL) {
-            return;
-        }
-        if (!matches(event.getItem())) {
-            return;
-        }
-        event.setCancelled(true);
-        onUse(event.getPlayer());
+    void handleUse(Player player) {
+        onUse(player);
     }
 }
