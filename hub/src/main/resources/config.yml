@@ -1,6 +1,1 @@
-items:
-  server-selector:
-    slot: 4
-    material: COMPASS
-    amount: 1
-    glow: true
+# Item appearance lives on each CustomItem class.

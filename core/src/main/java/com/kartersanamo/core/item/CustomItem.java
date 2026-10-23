@@ -1,9 +1,5 @@
 package com.kartersanamo.core.item;
 
-import com.kartersanamo.core.config.PluginConfig;
-import com.kartersanamo.core.config.PluginMessages;
-import com.kartersanamo.core.util.ItemBuilder;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,7 +11,6 @@ import org.bukkit.inventory.PlayerInventory;
 public abstract class CustomItem implements Listener {
 
     private final String id;
-    private CustomItemRegistry registry;
 
     protected CustomItem(String id) {
         this.id = id;
@@ -25,12 +20,8 @@ public abstract class CustomItem implements Listener {
         return id;
     }
 
-    void bind(CustomItemRegistry registry) {
-        this.registry = registry;
-    }
-
     public int slot() {
-        return config().getInt(configPath() + ".slot", -1);
+        return -1;
     }
 
     public ItemStack create() {
@@ -55,17 +46,7 @@ public abstract class CustomItem implements Listener {
         inventory.addItem(item);
     }
 
-    protected ItemStack appearance() {
-        String path = configPath();
-        ItemBuilder builder = new ItemBuilder(config().getMaterial(path + ".material", Material.STONE))
-                .amount(config().getInt(path + ".amount", 1))
-                .name(messages().get(path + ".name"))
-                .lore(messages().getList(path + ".lore"));
-        if (config().getBoolean(path + ".glow", false)) {
-            builder.glow();
-        }
-        return builder.build();
-    }
+    protected abstract ItemStack appearance();
 
     protected void onUse(Player player) {
     }
@@ -80,24 +61,5 @@ public abstract class CustomItem implements Listener {
         }
         event.setCancelled(true);
         onUse(event.getPlayer());
-    }
-
-    protected String configPath() {
-        return registry().configRoot() + "." + id;
-    }
-
-    protected PluginConfig config() {
-        return registry().config();
-    }
-
-    protected PluginMessages messages() {
-        return registry().messages();
-    }
-
-    private CustomItemRegistry registry() {
-        if (registry == null) {
-            throw new IllegalStateException("Custom item '" + id + "' must be registered before use");
-        }
-        return registry;
     }
 }

@@ -27,15 +27,14 @@ One class per item under `com.kartersanamo.hub.item`. Register it in `HubPlugin.
 ```java
 items =new
 
-CustomItemRegistry(this,pluginConfig, pluginMessages)
-        .
+CustomItemRegistry(this).
 
 register(new ServerSelector());
 ```
 
-Appearance comes from config/messages. Override `onUse` in the item class for click behavior.
+Name, lore, slot, and material live on the item class. Override `onUse` for click behavior.
 
-| Item            | Id                | Default slot      |
+| Item            | Id                | Slot              |
 |-----------------|-------------------|-------------------|
 | Server selector | `server-selector` | 4 (middle hotbar) |
 

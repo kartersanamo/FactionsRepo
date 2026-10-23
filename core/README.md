@@ -36,14 +36,13 @@ Reload both with `pluginConfig.reload()` and `pluginMessages.reload()`. Player d
 
 ## Custom items
 
-One class per item. Core loads appearance from config/messages, tags the stack with NBT, and handles clicks. Child
-plugins register items and override `onUse` when they need behavior.
+One class per item. The subclass owns id, slot, name, lore, and the rest of the appearance. Core tags the stack with
+NBT and handles clicks. Child plugins register items and override `onUse` when they need behavior.
 
 ```java
 items =new
 
-CustomItemRegistry(this,pluginConfig, pluginMessages)
-        .
+CustomItemRegistry(this).
 
 register(new ServerSelector());
         items.
@@ -58,34 +57,31 @@ public final class ServerSelector extends CustomItem {
     }
 
     @Override
+    public int slot() {
+        return 4;
+    }
+
+    @Override
+    protected ItemStack appearance() {
+        return new ItemBuilder(Material.COMPASS)
+                .name("&a&lServer Selector")
+                .lore("&7Click to choose a server")
+                .glow()
+                .build();
+    }
+
+    @Override
     protected void onUse(Player player) {
-        new ServerSelectorMenu(player).open(player);
+        new ServerSelectorMenu().open(player);
     }
 }
 ```
 
-`config.yml` owns material, slot, amount, and glow. `messages.yml` owns name and lore. Paths default to `items.<id>`.
-
-```yaml
-items:
-  server-selector:
-    slot: 4
-    material: COMPASS
-    amount: 1
-    glow: true
-```
-
-```yaml
-items:
-  server-selector:
-    name: "&a&lServer Selector"
-    lore:
-      - "&7Click to choose a server"
-```
+Override `slot()` to place the item in a hotbar slot. Leave the default (`-1`) to add it to the first empty slot.
 
 | Class                | Purpose                                                              |
 |----------------------|----------------------------------------------------------------------|
-| `ItemIds`            | 1.8 NBT id tag/read/match (`ks_item`)                                |
+| `NBTUtils`           | 1.8 NBT id tag/read/match (`ks_item`)                                |
 | `CustomItem`         | One file per item: `create()`, `matches()`, `give()`, click handling |
 | `CustomItemRegistry` | Register items, wire listeners, `giveAll(player)`                    |
 | `ItemBuilder`        | Appearance builder, including `.glow()`                              |

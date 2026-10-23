@@ -30,8 +30,7 @@ public class HubPlugin extends JavaPlugin {
         instance = this;
         pluginConfig = new PluginConfig(this);
         pluginMessages = new PluginMessages(this);
-        items = new CustomItemRegistry(this, pluginConfig, pluginMessages)
-                .register(new ServerSelector());
+        items = new CustomItemRegistry(this).register(new ServerSelector());
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(items), this);
         getLogger().info("Hub has been enabled!");
     }
