@@ -8,12 +8,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-final class MinecraftStatus {
+public final class MinecraftStatus {
 
     private MinecraftStatus() {
     }
 
-    static boolean isReady(InetSocketAddress address) {
+    public static boolean isReady(InetSocketAddress address) {
         try (Socket socket = new Socket()) {
             socket.connect(address, 2000);
             socket.setSoTimeout(2000);

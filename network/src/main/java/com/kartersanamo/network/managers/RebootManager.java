@@ -1,17 +1,16 @@
-package com.kartersanamo.network;
+package com.kartersanamo.network.managers;
 
+import com.kartersanamo.network.MinecraftStatus;
+import com.kartersanamo.network.NetworkPlugin;
+import lombok.Getter;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import net.md_5.bungee.event.EventHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,8 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RebootManager implements Listener {
+@Getter
+public class RebootManager {
 
     private static final Pattern DURATION =
             Pattern.compile("^(\\d+)([smh])?$", Pattern.CASE_INSENSITIVE);
@@ -74,48 +74,8 @@ public class RebootManager implements Listener {
         return seconds;
     }
 
-    public void schedule(CommandSender sender, String serverName, int seconds) {
-        if (restarting.contains(serverName)) {
-            send(sender, plugin.message("restart-in-progress", "%server%", serverName));
-            return;
-        }
-        failed.remove(serverName);
-        if (scheduled.containsKey(serverName)) {
-            send(sender, plugin.message("already-scheduled", "%server%", serverName));
-            return;
-        }
-        if (hubServer() == null) {
-            send(sender, plugin.message(
-                    "hub-missing",
-                    "%hub%", plugin.config().getString("hub-server", "hub")));
-            return;
-        }
-
-        List<ScheduledTask> tasks = new CopyOnWriteArrayList<>();
-        tasks.add(plugin.getProxy().getScheduler().schedule(
-                plugin, () -> beginRestart(serverName), seconds, TimeUnit.SECONDS));
-
-        if (seconds > 60) {
-            tasks.add(plugin.getProxy().getScheduler().schedule(
-                    plugin,
-                    () -> broadcast(serverName, plugin.message("one-minute", "%server%", serverName)),
-                    seconds - 60,
-                    TimeUnit.SECONDS));
-        }
-
-        int countdownLength = Math.min(10, seconds);
-        tasks.add(plugin.getProxy().getScheduler().schedule(
-                plugin,
-                () -> startSecondCountdown(serverName, countdownLength),
-                seconds - countdownLength,
-                TimeUnit.SECONDS));
-
-        scheduled.put(serverName, tasks);
-        plugin.getLogger().info("Scheduled reboot of " + serverName + " in " + seconds + "s by " + sender.getName());
-        broadcast(serverName, plugin.message(
-                "scheduled",
-                "%server%", serverName,
-                "%time%", formatDuration(seconds)));
+    public static void send(CommandSender sender, String message) {
+        sender.sendMessage(TextComponent.fromLegacyText(message));
     }
 
     public void cancel(CommandSender sender, String serverName) {
@@ -155,48 +115,6 @@ public class RebootManager implements Listener {
         saveQueues();
     }
 
-    @EventHandler
-    public void onServerConnect(ServerConnectEvent event) {
-        ServerInfo target = event.getTarget();
-        if (target == null) {
-            return;
-        }
-        String name = target.getName();
-        if (!restarting.contains(name) || isHub(name)) {
-            return;
-        }
-        ServerInfo hub = hubServer();
-        if (hub == null) {
-            return;
-        }
-        event.setTarget(hub);
-        send(event.getPlayer(), plugin.message("server-unavailable", "%server%", name));
-    }
-
-    @EventHandler
-    public void onPostLogin(PostLoginEvent event) {
-        ProxiedPlayer player = event.getPlayer();
-        String queuedServer = queuedServerOf(player.getUniqueId());
-        if (queuedServer == null) {
-            return;
-        }
-        if (failed.contains(queuedServer)) {
-            send(player, plugin.message("failed", "%server%", queuedServer));
-            dequeue(queuedServer, player.getUniqueId());
-            saveQueues();
-            return;
-        }
-        if (restarting.contains(queuedServer)) {
-            send(player, plugin.message("queued-waiting", "%server%", queuedServer));
-            return;
-        }
-        plugin.getProxy().getScheduler().schedule(plugin, () -> {
-            if (player.isConnected()) {
-                connectQueued(player, queuedServer);
-            }
-        }, 500, TimeUnit.MILLISECONDS);
-    }
-
     private void startSecondCountdown(String serverName, int seconds) {
         if (!scheduled.containsKey(serverName) || restarting.contains(serverName)) {
             return;
@@ -218,38 +136,48 @@ public class RebootManager implements Listener {
         }
     }
 
-    private void beginRestart(String serverName) {
-        List<ScheduledTask> tasks = scheduled.remove(serverName);
-        cancelTasks(tasks);
-        if (!restarting.add(serverName)) {
+    public void schedule(CommandSender sender, String serverName, int seconds) {
+        if (restarting.contains(serverName)) {
+            send(sender, plugin.message("restart-in-progress", "%server%", serverName));
+            return;
+        }
+        failed.remove(serverName);
+        if (scheduled.containsKey(serverName)) {
+            send(sender, plugin.message("already-scheduled", "%server%", serverName));
+            return;
+        }
+        if (plugin.getServerManager().getHubServer() == null) {
+            send(sender, plugin.message(
+                    "hub-missing",
+                    "%hub%", plugin.config().getString("hub-server", "hub")));
             return;
         }
 
-        ServerInfo backend = plugin.getProxy().getServerInfo(serverName);
-        ServerInfo hub = hubServer();
-        if (backend == null || hub == null) {
-            restarting.remove(serverName);
-            plugin.getLogger().severe("Cannot restart " + serverName + ": hub or backend is missing.");
-            return;
+        List<ScheduledTask> tasks = new CopyOnWriteArrayList<>();
+        tasks.add(plugin.getProxy().getScheduler().schedule(
+                plugin, () -> beginRestart(serverName), seconds, TimeUnit.SECONDS));
+
+        if (seconds > 60) {
+            tasks.add(plugin.getProxy().getScheduler().schedule(
+                    plugin,
+                    () -> broadcast(serverName, plugin.message("one-minute", "%server%", serverName)),
+                    seconds - 60,
+                    TimeUnit.SECONDS));
         }
 
-        enqueuePlayers(backend);
-        saveQueues();
-        String moveMessage = plugin.message("restarting", "%server%", serverName);
-        for (ProxiedPlayer player : new ArrayList<>(backend.getPlayers())) {
-            send(player, moveMessage);
-            player.connect(hub);
-        }
+        int countdownLength = Math.min(10, seconds);
+        tasks.add(plugin.getProxy().getScheduler().schedule(
+                plugin,
+                () -> startSecondCountdown(serverName, countdownLength),
+                seconds - countdownLength,
+                TimeUnit.SECONDS));
 
-        if (!writeRestartRequest(serverName)) {
-            restarting.remove(serverName);
-            failQueue(serverName);
-            return;
-        }
-
-        plugin.getLogger().info("Restart requested for " + serverName
-                + " (" + queue(serverName).size() + " queued players)");
-        plugin.getProxy().getScheduler().runAsync(plugin, () -> waitUntilReady(serverName, true));
+        scheduled.put(serverName, tasks);
+        plugin.getLogger().info("Scheduled reboot of " + serverName + " in " + seconds + "s by " + sender.getName());
+        broadcast(serverName, plugin.message(
+                "scheduled",
+                "%server%", serverName,
+                "%time%", formatDuration(seconds)));
     }
 
     private void waitUntilReady(String serverName, boolean requireDowntime) {
@@ -331,7 +259,48 @@ public class RebootManager implements Listener {
         plugin.getLogger().warning("Restart failed for " + serverName + "; remaining queue kept for offline players.");
     }
 
-    private void connectQueued(ProxiedPlayer player, String serverName) {
+    private void beginRestart(String serverName) {
+        List<ScheduledTask> tasks = scheduled.remove(serverName);
+        cancelTasks(tasks);
+        if (!restarting.add(serverName)) {
+            return;
+        }
+
+        ServerInfo backend = plugin.getProxy().getServerInfo(serverName);
+        ServerInfo hub = plugin.getServerManager().getHubServer();
+        if (backend == null || hub == null) {
+            restarting.remove(serverName);
+            plugin.getLogger().severe("Cannot restart " + serverName + ": hub or backend is missing.");
+            return;
+        }
+
+        enqueuePlayers(backend);
+        saveQueues();
+        String moveMessage = plugin.message("restarting", "%server%", serverName);
+        for (ProxiedPlayer player : new ArrayList<>(backend.getPlayers())) {
+            send(player, moveMessage);
+            player.connect(hub);
+        }
+
+        if (!writeRestartRequest(serverName)) {
+            restarting.remove(serverName);
+            failQueue(serverName);
+            return;
+        }
+
+        plugin.getLogger().info("Restart requested for " + serverName
+                + " (" + queue(serverName).size() + " queued players)");
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> waitUntilReady(serverName, true));
+    }
+
+    private void enqueuePlayers(ServerInfo backend) {
+        LinkedHashSet<UUID> queue = queue(backend.getName());
+        for (ProxiedPlayer player : backend.getPlayers()) {
+            queue.add(player.getUniqueId());
+        }
+    }
+
+    public void connectQueued(ProxiedPlayer player, String serverName) {
         ServerInfo backend = plugin.getProxy().getServerInfo(serverName);
         if (backend == null || restarting.contains(serverName)) {
             return;
@@ -349,14 +318,11 @@ public class RebootManager implements Listener {
         });
     }
 
-    private void enqueuePlayers(ServerInfo backend) {
-        LinkedHashSet<UUID> queue = queue(backend.getName());
-        for (ProxiedPlayer player : backend.getPlayers()) {
-            queue.add(player.getUniqueId());
-        }
+    private LinkedHashSet<UUID> queue(String serverName) {
+        return queues.computeIfAbsent(serverName, key -> new LinkedHashSet<>());
     }
 
-    private void dequeue(String serverName, UUID uuid) {
+    public void dequeue(String serverName, UUID uuid) {
         LinkedHashSet<UUID> queue = queues.get(serverName);
         if (queue == null) {
             return;
@@ -365,19 +331,6 @@ public class RebootManager implements Listener {
         if (queue.isEmpty()) {
             queues.remove(serverName);
         }
-    }
-
-    private LinkedHashSet<UUID> queue(String serverName) {
-        return queues.computeIfAbsent(serverName, key -> new LinkedHashSet<>());
-    }
-
-    private String queuedServerOf(UUID uuid) {
-        for (Map.Entry<String, LinkedHashSet<UUID>> entry : queues.entrySet()) {
-            if (entry.getValue().contains(uuid)) {
-                return entry.getKey();
-            }
-        }
-        return null;
     }
 
     private boolean writeRestartRequest(String serverName) {
@@ -416,17 +369,13 @@ public class RebootManager implements Listener {
         return service;
     }
 
-    private ServerInfo hubServer() {
-        String hubName = plugin.config().getString("hub-server", "hub");
-        ServerInfo hub = plugin.getProxy().getServerInfo(hubName);
-        if (hub == null) {
-            plugin.getLogger().severe("Hub server " + hubName + " is not in BungeeCord config.");
+    public String queuedServerOf(UUID uuid) {
+        for (Map.Entry<String, LinkedHashSet<UUID>> entry : queues.entrySet()) {
+            if (entry.getValue().contains(uuid)) {
+                return entry.getKey();
+            }
         }
-        return hub;
-    }
-
-    private boolean isHub(String serverName) {
-        return plugin.config().getString("hub-server", "hub").equalsIgnoreCase(serverName);
+        return null;
     }
 
     private void pollScheduleRequests() {
@@ -508,20 +457,8 @@ public class RebootManager implements Listener {
         }
     }
 
-    private void saveQueues() {
-        Configuration yaml = new Configuration();
-        for (Map.Entry<String, LinkedHashSet<UUID>> entry : queues.entrySet()) {
-            List<String> ids = new ArrayList<>();
-            for (UUID uuid : entry.getValue()) {
-                ids.add(uuid.toString());
-            }
-            yaml.set("queues." + entry.getKey(), ids);
-        }
-        try {
-            ConfigurationProvider.getProvider(YamlConfiguration.class).save(yaml, queueFile());
-        } catch (IOException exception) {
-            plugin.getLogger().log(Level.SEVERE, "Could not save reboot queues", exception);
-        }
+    public boolean isHub(String serverName) {
+        return plugin.config().getString("hub-server", "hub").equalsIgnoreCase(serverName);
     }
 
     private File queueFile() {
@@ -537,8 +474,20 @@ public class RebootManager implements Listener {
         }
     }
 
-    private static void send(CommandSender sender, String message) {
-        sender.sendMessage(TextComponent.fromLegacyText(message));
+    public void saveQueues() {
+        Configuration yaml = new Configuration();
+        for (Map.Entry<String, LinkedHashSet<UUID>> entry : queues.entrySet()) {
+            List<String> ids = new ArrayList<>();
+            for (UUID uuid : entry.getValue()) {
+                ids.add(uuid.toString());
+            }
+            yaml.set("queues." + entry.getKey(), ids);
+        }
+        try {
+            ConfigurationProvider.getProvider(YamlConfiguration.class).save(yaml, queueFile());
+        } catch (IOException exception) {
+            plugin.getLogger().log(Level.SEVERE, "Could not save reboot queues", exception);
+        }
     }
 
     private static String formatDuration(int seconds) {

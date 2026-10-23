@@ -1,5 +1,7 @@
-package com.kartersanamo.network;
+package com.kartersanamo.network.commands;
 
+import com.kartersanamo.network.NetworkPlugin;
+import com.kartersanamo.network.managers.RebootManager;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;

@@ -1,5 +1,11 @@
 package com.kartersanamo.network;
 
+import com.kartersanamo.network.commands.HubCommand;
+import com.kartersanamo.network.commands.RebootCommand;
+import com.kartersanamo.network.listeners.RebootListener;
+import com.kartersanamo.network.managers.RebootManager;
+import com.kartersanamo.network.managers.ServerManager;
+import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -12,14 +18,21 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.logging.Level;
 
+@Getter
 public class NetworkPlugin extends Plugin {
 
     private Configuration config;
     private Configuration messages;
+
+    @Getter
+    private static NetworkPlugin instance;
     private RebootManager rebootManager;
+    private ServerManager serverManager;
 
     @Override
     public void onEnable() {
+        instance = this;
+
         saveDefault("config.yml");
         saveDefault("messages.yml");
         reloadFiles();
@@ -34,8 +47,11 @@ public class NetworkPlugin extends Plugin {
         }
 
         rebootManager = new RebootManager(this);
+        serverManager = new ServerManager(this);
+
         getProxy().getPluginManager().registerCommand(this, new RebootCommand(this, rebootManager));
-        getProxy().getPluginManager().registerListener(this, rebootManager);
+        getProxy().getPluginManager().registerCommand(this, new HubCommand(serverManager));
+        getProxy().getPluginManager().registerListener(this, new RebootListener(this, rebootManager, serverManager));
         rebootManager.recoverQueues();
         rebootManager.startSchedulePolling();
         getLogger().info("Network reboot command registered.");
