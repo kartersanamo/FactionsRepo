@@ -2,6 +2,7 @@ package com.kartersanamo.hub.item;
 
 import com.kartersanamo.core.item.CustomItem;
 import com.kartersanamo.core.util.ItemBuilder;
+import com.kartersanamo.core.util.ServerBrandingUtil;
 import com.kartersanamo.hub.menu.ServerSelectorMenu;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,7 +22,7 @@ public final class ServerSelector extends CustomItem {
     @Override
     protected ItemStack appearance() {
         return new ItemBuilder(Material.COMPASS)
-                .name("&a&lServer Selector")
+                .name(ServerBrandingUtil.getPrimaryColor() + "&lServer Selector")
                 .lore("&7Click to choose a server")
                 .glow()
                 .build();
